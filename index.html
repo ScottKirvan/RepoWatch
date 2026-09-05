@@ -424,8 +424,9 @@ async function fetchRepo(fullName, headers) {
     const issues  = rawI.filter(i => !i.pull_request);
     const owner   = fullName.split('/')[0];
     const me      = S.currentUser || owner;
-    const extPRs  = prs.filter(p => p.user?.login !== me);
-    const extI    = issues.filter(i => i.user?.login !== me);
+    const isBot   = u => !u || u.type === 'Bot' || u.login?.endsWith('[bot]');
+    const extPRs  = prs.filter(p => p.user?.login !== me && !isBot(p.user));
+    const extI    = issues.filter(i => i.user?.login !== me && !isBot(i.user));
     return {
       full_name: fullName, pushed_at: repo.pushed_at,
       latest_release: release?.tag_name ? release : null,
@@ -533,7 +534,8 @@ function renderBadges(data) {
       const [owner, name] = d.full_name.split('/');
       const label  = S.showOrg ? `${owner}/${name}` : name;
       const count  = type === 'pr' ? d.external_prs : d.external_issues;
-      const filter = user ? `-author%3A${user}` : '';
+      const botFilter = `-author%3Aapp%2Frelease-please+-author%3Agithub-actions%5Bbot%5D`;
+      const filter = (user ? `-author%3A${user}+` : '') + botFilter;
       const url    = type === 'pr'
         ? `https://github.com/${d.full_name}/pulls?q=is%3Aopen+is%3Apr+${filter}`
         : `https://github.com/${d.full_name}/issues?q=is%3Aopen+is%3Aissue+${filter}`;
