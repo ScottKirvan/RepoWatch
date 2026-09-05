@@ -383,6 +383,7 @@ function init() {
   } catch(e) { S.repos = DEFAULT_REPOS.slice(); }
   updateSortHeaders();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+  setInterval(updateSummaryTime, 60000);
   load();
 }
 
@@ -422,7 +423,6 @@ async function load() {
   setPip('live');
   setSpinning(false);
   renderAll();
-  setInterval(updateSummaryTime, 60000);
 }
 
 async function fetchRepo(fullName, headers) {
