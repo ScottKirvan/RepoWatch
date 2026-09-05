@@ -1,0 +1,709 @@
+<title>RepoWatch</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #0d1117; --surface: #161b22; --surface-raised: #21262d;
+  --border: #30363d; --border-subtle: #1c2128;
+  --text: #e6edf3; --text-muted: #7d8590; --text-dim: #484f58;
+  --accent: #2f81f7; --accent-muted: rgba(47,129,247,0.1);
+  --ext: #f85149; --ext-muted: rgba(248,81,73,0.10);
+  --good: #3fb950; --warn: #d29922;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f6f8fa; --surface: #fff; --surface-raised: #f0f3f6;
+    --border: #d0d7de; --border-subtle: #e8ecf0;
+    --text: #1f2328; --text-muted: #57606a; --text-dim: #8c959f;
+    --accent: #0969da; --accent-muted: rgba(9,105,218,0.07);
+    --ext: #cf222e; --ext-muted: rgba(207,34,46,0.07);
+    --good: #1a7f37; --warn: #9a6700;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f6f8fa; --surface: #fff; --surface-raised: #f0f3f6;
+  --border: #d0d7de; --border-subtle: #e8ecf0;
+  --text: #1f2328; --text-muted: #57606a; --text-dim: #8c959f;
+  --accent: #0969da; --accent-muted: rgba(9,105,218,0.07);
+  --ext: #cf222e; --ext-muted: rgba(207,34,46,0.07);
+  --good: #1a7f37; --warn: #9a6700;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px; line-height: 1.4; min-height: 100vh;
+}
+
+/* ── Header ── */
+header {
+  position: sticky; top: 0; z-index: 20;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 16px; height: 44px;
+  display: flex; align-items: center; gap: 10px;
+}
+.wordmark {
+  font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 14px;
+  color: var(--text); letter-spacing: -0.03em;
+  display: flex; align-items: center; gap: 7px; flex-shrink: 0; user-select: none;
+}
+.pip {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  box-shadow: 0 0 5px var(--accent); flex-shrink: 0; transition: background 0.3s, box-shadow 0.3s;
+}
+.pip.live { background: var(--good); box-shadow: 0 0 5px var(--good); }
+.pip.err  { background: var(--ext);  box-shadow: 0 0 5px var(--ext); }
+.header-spacer { flex: 1; }
+.icon-btn {
+  width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px;
+  background: transparent; color: var(--text-muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.1s, color 0.1s; flex-shrink: 0;
+}
+.icon-btn:hover { background: var(--surface-raised); color: var(--text); }
+.icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.icon-btn svg { width: 14px; height: 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinning svg { animation: spin 0.8s linear infinite; }
+
+/* ── Traffic chart ── */
+.traffic-section {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 10px 16px 0;
+}
+.traffic-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.traffic-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted);
+}
+.traffic-range { font-weight: 400; color: var(--text-dim); }
+.traffic-total {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--text-dim); font-variant-numeric: tabular-nums; margin-left: auto;
+}
+.chart-wrap { position: relative; padding-bottom: 18px; }
+.chart-wrap svg { display: block; width: 100%; height: 65px; overflow: visible; }
+.chart-no-pat {
+  height: 65px; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
+}
+.chart-no-pat a { color: var(--text-muted); cursor: pointer; text-decoration: none; }
+.chart-no-pat a:hover { color: var(--accent); }
+.x-labels {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: var(--text-dim); pointer-events: none;
+}
+.x-labels span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.x-labels span:first-child { transform: none; }
+.x-labels span:last-child { transform: translateX(-100%); }
+
+/* ── Attention badges ── */
+.attn-section {
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px; display: flex; flex-direction: column; gap: 6px;
+}
+.attn-row { display: flex; align-items: flex-start; gap: 8px; min-height: 22px; }
+.attn-icon { flex-shrink: 0; width: 14px; height: 14px; color: var(--text-dim); margin-top: 4px; }
+.badge-list { display: flex; flex-wrap: wrap; gap: 5px; flex: 1; }
+.shield {
+  display: inline-flex; border-radius: 3px; overflow: hidden;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+  text-decoration: none; line-height: 1; flex-shrink: 0;
+}
+.shield-name {
+  background: var(--surface-raised); color: var(--text-muted);
+  padding: 3px 7px; border: 1px solid var(--border); border-right: none;
+  border-radius: 3px 0 0 3px;
+}
+.shield-count {
+  background: var(--ext); color: #fff;
+  padding: 3px 7px; border: 1px solid var(--ext); border-radius: 0 3px 3px 0;
+}
+.shield:hover .shield-name { color: var(--text); background: var(--border); }
+.shield:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── Summary bar ── */
+.summary-bar {
+  padding: 5px 16px; font-size: 11px; color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace; letter-spacing: -0.01em;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 380px; }
+thead th {
+  padding: 7px 12px; text-align: left;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-dim); border-bottom: 1px solid var(--border);
+  white-space: nowrap; background: var(--bg);
+  cursor: pointer; user-select: none; transition: color 0.1s;
+}
+thead th:hover { color: var(--text-muted); }
+thead th.active { color: var(--text); }
+thead th:first-child { padding-left: 19px; }
+.th-inner { display: inline-flex; align-items: center; gap: 3px; }
+.sort-arrow { font-size: 8px; opacity: 0.6; }
+
+tbody tr {
+  border-bottom: 1px solid var(--border-subtle); border-left: 3px solid transparent;
+  transition: background 0.08s;
+}
+tbody tr:hover { background: var(--surface); }
+tbody tr.has-ext { border-left-color: var(--ext); }
+tbody tr.has-ext:hover { background: var(--ext-muted); }
+tbody td { padding: 8px 12px; vertical-align: middle; }
+tbody td:first-child { padding-left: 13px; }
+
+.repo-link {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+  color: var(--text); text-decoration: none; letter-spacing: -0.02em; display: block;
+  transition: color 0.1s;
+}
+.repo-link:hover { color: var(--accent); }
+.repo-owner { font-weight: 400; color: var(--text-dim); }
+.repo-ver {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--text-dim); margin-top: 1px; letter-spacing: -0.01em;
+}
+.repo-ver .vtag { color: var(--text-muted); }
+
+.time-val {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  font-variant-numeric: tabular-nums; color: var(--text-muted); white-space: nowrap;
+}
+.time-val.recent { color: var(--good); }
+.time-val.stale  { color: var(--warn); }
+.time-val.none   { color: var(--text-dim); font-style: italic; }
+
+.cnt-link {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+  font-variant-numeric: tabular-nums; color: var(--text-muted);
+  text-decoration: none; display: inline-block; min-width: 18px;
+  transition: color 0.1s;
+}
+.cnt-link:hover { color: var(--accent); }
+.cnt-link.zero { color: var(--text-dim); font-weight: 400; }
+
+/* Skeleton */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skel {
+  height: 12px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--surface-raised) 25%, var(--border) 50%, var(--surface-raised) 75%);
+  background-size: 200% 100%; animation: shimmer 1.4s infinite;
+}
+
+/* Config */
+.config-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 50; cursor: pointer;
+}
+.config-overlay.open { display: block; }
+.config-panel {
+  position: fixed; right: 0; top: 0; bottom: 0; width: min(340px, 100vw);
+  background: var(--surface); border-left: 1px solid var(--border);
+  z-index: 51; display: flex; flex-direction: column; gap: 18px;
+  padding: 18px; overflow-y: auto; cursor: default;
+}
+.config-head { display: flex; align-items: center; justify-content: space-between; }
+.config-title {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+}
+.close-btn {
+  background: none; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 18px; line-height: 1; padding: 2px 4px;
+}
+.close-btn:hover { color: var(--text); }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.field-input, .field-textarea {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 5px;
+  color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 7px 9px; outline: none; transition: border-color 0.1s; width: 100%;
+}
+.field-input:focus, .field-textarea:focus { border-color: var(--accent); }
+.field-textarea { min-height: 180px; resize: vertical; line-height: 1.9; }
+.field-hint { font-size: 10px; color: var(--text-dim); line-height: 1.5; }
+.toggle-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 0; cursor: pointer; user-select: none;
+}
+.toggle-row input { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+.toggle-label { font-size: 12px; color: var(--text-muted); }
+.save-btn {
+  padding: 8px; background: var(--accent); color: #fff; border: none;
+  border-radius: 6px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit; margin-top: auto;
+}
+.save-btn:hover { opacity: 0.85; }
+.save-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<header>
+  <div class="wordmark">
+    <div class="pip" id="pip"></div>
+    RepoWatch
+  </div>
+  <div class="header-spacer"></div>
+  <button class="icon-btn" id="refreshBtn" title="Refresh (R)" onclick="triggerRefresh()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+      <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+    </svg>
+  </button>
+  <button class="icon-btn" title="Settings" onclick="openConfig()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+    </svg>
+  </button>
+</header>
+
+<section class="traffic-section">
+  <div class="traffic-header">
+    <span class="traffic-label">Traffic <span class="traffic-range">· 14 days</span></span>
+    <span class="traffic-total" id="trafficTotal"></span>
+  </div>
+  <div class="chart-wrap" id="chartWrap">
+    <div class="chart-no-pat" id="chartNoPat">
+      Add a GitHub PAT in <a onclick="openConfig()">Settings</a> to view traffic data.
+    </div>
+    <svg id="chartSvg" viewBox="0 0 1000 65" preserveAspectRatio="none" hidden></svg>
+    <div class="x-labels" id="chartLabels" hidden>
+      <span style="left:0">14d</span>
+      <span style="left:26.3%">7d</span>
+      <span style="left:47.5%">3d</span>
+      <span style="left:73.8%">1d</span>
+      <span style="right:0">now</span>
+    </div>
+  </div>
+</section>
+
+<section class="attn-section" id="attnSection" hidden>
+  <div class="attn-row">
+    <svg class="attn-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="4" cy="3" r="1.5"/><circle cx="4" cy="13" r="1.5"/><circle cx="12" cy="5" r="1.5"/>
+      <line x1="4" y1="4.5" x2="4" y2="11.5"/>
+      <path d="M4 6c0 0 0-3 8-3"/>
+    </svg>
+    <div class="badge-list" id="prBadges"></div>
+  </div>
+  <div class="attn-row">
+    <svg class="attn-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="8" cy="8" r="6.5"/>
+      <line x1="8" y1="5" x2="8" y2="8.5"/>
+      <circle cx="8" cy="11" r="0.5" fill="currentColor"/>
+    </svg>
+    <div class="badge-list" id="issueBadges"></div>
+  </div>
+</section>
+
+<div class="summary-bar" id="summaryBar">loading…</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th id="th-name"    onclick="setSort('name')"   ><div class="th-inner">Repo    <span class="sort-arrow" id="arr-name"></span></div></th>
+        <th id="th-commit"  onclick="setSort('commit')" ><div class="th-inner">Last Push <span class="sort-arrow" id="arr-commit">↑</span></div></th>
+        <th id="th-prs"     onclick="setSort('prs')"    ><div class="th-inner">PRs     <span class="sort-arrow" id="arr-prs"></span></div></th>
+        <th id="th-issues"  onclick="setSort('issues')" ><div class="th-inner">Issues  <span class="sort-arrow" id="arr-issues"></span></div></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div class="config-overlay" id="configOverlay" onclick="overlayClick(event)">
+  <div class="config-panel">
+    <div class="config-head">
+      <span class="config-title">Settings</span>
+      <button class="close-btn" onclick="closeConfig()">×</button>
+    </div>
+    <div class="field">
+      <div class="field-label">GitHub PAT <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
+      <input type="password" class="field-input" id="patInput" placeholder="ghp_… (needed for traffic data + private repos)" autocomplete="off">
+      <div class="field-hint">Public repo data loads without a token. A PAT with <code>repo</code> scope unlocks the traffic chart and private repos. Stored in localStorage, sent only to api.github.com.</div>
+    </div>
+    <div class="field">
+      <div class="field-label">Repositories</div>
+      <textarea class="field-textarea" id="reposInput" placeholder="owner/repo&#10;owner/repo2"></textarea>
+      <div class="field-hint">One <code>owner/repo</code> per line.</div>
+    </div>
+    <label class="toggle-row">
+      <input type="checkbox" id="showOrgToggle">
+      <span class="toggle-label">Show org prefix in repo names</span>
+    </label>
+    <button class="save-btn" onclick="saveConfig()">Save &amp; Refresh</button>
+  </div>
+</div>
+
+<script>
+const DEFAULT_REPOS = [
+  'ScottKirvan/BojuBot','ScottKirvan/QuKi-Notes','ScottKirvan/BojuVue',
+  'ScottKirvan/.github','ScottKirvan/Obsidian-ScooterUtils','ScottKirvan/GitHubDHC',
+  'ScottKirvan/ScooterUtils','ScottKirvan/ObsidianQuickLaunch',
+  'ScottKirvan/UE_QuickLaunch','ScottKirvan/Pingd',
+];
+
+const S = {
+  pat: '', currentUser: '', repos: [], showOrg: false,
+  sortBy: 'commit', sortDir: 'asc',   // oldest first by default
+  data: [], loadedAt: null,
+};
+
+// ── Init ──────────────────────────────────────────────
+function init() {
+  try {
+    S.pat     = localStorage.getItem('rw_pat') || '';
+    S.repos   = (localStorage.getItem('rw_repos') || DEFAULT_REPOS.join('\n'))
+                  .split('\n').map(s => s.trim()).filter(Boolean);
+    S.showOrg = localStorage.getItem('rw_show_org') === '1';
+  } catch(e) { S.repos = DEFAULT_REPOS.slice(); }
+  // Reflect saved sort in headers immediately
+  updateSortHeaders();
+  load();
+}
+
+// ── Load ──────────────────────────────────────────────
+async function load() {
+  setSpinning(true);
+  setPip('');
+  renderSkeleton(S.repos.length || 8);
+
+  const headers = S.pat
+    ? { Authorization: `token ${S.pat}`, Accept: 'application/vnd.github.v3+json' }
+    : { Accept: 'application/vnd.github.v3+json' };
+
+  // Resolve current user (needed for external-contributor filter)
+  if (S.pat && !S.currentUser) {
+    try {
+      const r = await fetch('https://api.github.com/user', { headers });
+      if (r.ok) S.currentUser = (await r.json()).login;
+    } catch(e) {}
+  }
+
+  // Fetch repo data
+  const results = await Promise.all(S.repos.map(r => fetchRepo(r, headers)));
+  S.data = results;
+  S.loadedAt = new Date();
+
+  // Fetch traffic only when PAT is present
+  if (S.pat) {
+    const trafficArr = await Promise.all(S.repos.map(r => fetchTraffic(r, headers)));
+    const agg = aggregateTraffic(trafficArr);
+    renderChart(agg);
+  }
+
+  setPip('live');
+  setSpinning(false);
+  renderAll();
+  setInterval(updateSummaryTime, 60000);
+}
+
+async function fetchRepo(fullName, headers) {
+  const base = `https://api.github.com/repos/${fullName}`;
+  try {
+    const [repoRes, relRes, prRes, issueRes] = await Promise.all([
+      fetch(base, { headers }),
+      fetch(`${base}/releases/latest`, { headers }),
+      fetch(`${base}/pulls?state=open&per_page=100`, { headers }),
+      fetch(`${base}/issues?state=open&per_page=100`, { headers }),
+    ]);
+    if (!repoRes.ok) return { full_name: fullName, error: repoRes.status };
+    const repo    = await repoRes.json();
+    const release = relRes.ok && relRes.status !== 404 ? await relRes.json() : null;
+    const prs     = prRes.ok    ? await prRes.json()    : [];
+    const rawI    = issueRes.ok ? await issueRes.json() : [];
+    const issues  = rawI.filter(i => !i.pull_request);
+    const owner   = fullName.split('/')[0];
+    const me      = S.currentUser || owner;
+    const extPRs  = prs.filter(p => p.user?.login !== me);
+    const extI    = issues.filter(i => i.user?.login !== me);
+    return {
+      full_name: fullName, pushed_at: repo.pushed_at,
+      latest_release: release?.tag_name ? release : null,
+      open_prs: prs.length, external_prs: extPRs.length,
+      open_issues: issues.length, external_issues: extI.length,
+    };
+  } catch(e) { return { full_name: fullName, error: 'net' }; }
+}
+
+async function fetchTraffic(fullName, headers) {
+  try {
+    const r = await fetch(`https://api.github.com/repos/${fullName}/traffic/views`, { headers });
+    return r.ok ? await r.json() : null;
+  } catch(e) { return null; }
+}
+
+function aggregateTraffic(arr) {
+  const byDate = {};
+  for (let i = 13; i >= 0; i--) {
+    const key = new Date(Date.now() - i*86400000).toISOString().split('T')[0];
+    byDate[key] = { views: 0, uniques: 0 };
+  }
+  arr.forEach(t => {
+    if (!t) return;
+    t.views.forEach(v => {
+      const key = v.timestamp.split('T')[0];
+      if (byDate[key]) { byDate[key].views += v.count; byDate[key].uniques += v.uniques; }
+    });
+  });
+  return Object.entries(byDate).sort(([a],[b]) => a.localeCompare(b))
+    .map(([date, {views, uniques}]) => ({ date, views, uniques }));
+}
+
+// ── Render all ────────────────────────────────────────
+function renderAll() {
+  renderBadges(S.data);
+  renderTable(S.data);
+  updateSummary(S.data);
+}
+
+// ── Chart ─────────────────────────────────────────────
+function renderChart(data) {
+  const noPat = document.getElementById('chartNoPat');
+  const svg   = document.getElementById('chartSvg');
+  const lbls  = document.getElementById('chartLabels');
+
+  if (!data || data.length === 0) {
+    noPat.hidden = false; svg.hidden = true; lbls.hidden = true;
+    return;
+  }
+
+  noPat.hidden = true; svg.hidden = false; lbls.hidden = false;
+
+  const W = 1000, H = 65, PAD_TOP = 6;
+  const CH = H - PAD_TOP;
+  const n  = data.length;
+  const maxV = Math.max(...data.map(d => d.views), 1);
+
+  function xc(i) { return i === n-1 ? W : Math.round((1 - Math.log(n-i)/Math.log(n)) * W); }
+  function yc(v)  { return PAD_TOP + CH - Math.sqrt(v/maxV) * CH; }
+
+  const pts  = data.map((d,i) => [xc(i), yc(d.views)]);
+  const upts = data.map((d,i) => [xc(i), yc(d.uniques)]);
+
+  const areaD  = `M${pts[0][0]},${H} ` + pts.map(([x,y]) => `L${x},${y}`).join(' ') + ` L${pts[n-1][0]},${H}Z`;
+  const lineD  = `M${pts[0].join(',')}` + pts.slice(1).map(([x,y]) => `L${x},${y}`).join('');
+  const ulineD = `M${upts[0].join(',')}` + upts.slice(1).map(([x,y]) => `L${x},${y}`).join('');
+
+  const maxI = data.reduce((mi,d,i) => d.views>data[mi].views ? i : mi, 0);
+  const [px, py] = pts[maxI];
+  const peakLbl  = fmt(maxV);
+  const totV     = data.reduce((s,d) => s+d.views, 0);
+  const totU     = data.reduce((s,d) => s+d.uniques, 0);
+
+  document.getElementById('trafficTotal').textContent = `${fmt(totV)} views · ${fmt(totU)} unique`;
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2f81f7" stop-opacity="0.28"/>
+        <stop offset="100%" stop-color="#2f81f7" stop-opacity="0.02"/>
+      </linearGradient>
+    </defs>
+    <path d="${areaD}" fill="url(#tg)"/>
+    <path d="${lineD}" fill="none" stroke="#2f81f7" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="${ulineD}" fill="none" stroke="#2f81f7" stroke-width="1" stroke-linejoin="round" opacity="0.38"/>
+    <circle cx="${px}" cy="${py}" r="2.5" fill="#2f81f7"/>
+    <text x="${Math.min(px+6, W-80)}" y="${Math.max(py-4, 16)}" font-family="monospace" font-size="22" fill="#7d8590" opacity="0.65">${peakLbl}</text>`;
+}
+
+function fmt(n) { return n >= 1000 ? `${(n/1000).toFixed(1)}k` : `${n}`; }
+
+// ── Badges ────────────────────────────────────────────
+function renderBadges(data) {
+  const valid  = data.filter(d => !d.error);
+  const user   = S.currentUser || '';
+  const section = document.getElementById('attnSection');
+
+  const prItems    = valid.filter(d => d.external_prs    > 0);
+  const issueItems = valid.filter(d => d.external_issues > 0);
+  section.hidden   = prItems.length === 0 && issueItems.length === 0;
+
+  function makeBadges(items, type) {
+    return items.map(d => {
+      const [owner, name] = d.full_name.split('/');
+      const label  = S.showOrg ? `${owner}/${name}` : name;
+      const count  = type === 'pr' ? d.external_prs : d.external_issues;
+      const filter = user ? `-author%3A${user}` : '';
+      const url    = type === 'pr'
+        ? `https://github.com/${d.full_name}/pulls?q=is%3Aopen+is%3Apr+${filter}`
+        : `https://github.com/${d.full_name}/issues?q=is%3Aopen+is%3Aissue+${filter}`;
+      return `<a class="shield" href="${esc(url)}" target="_blank" rel="noopener">
+        <span class="shield-name">${esc(label)}</span>
+        <span class="shield-count">${count}</span>
+      </a>`;
+    }).join('');
+  }
+
+  document.getElementById('prBadges').innerHTML    = makeBadges(prItems, 'pr');
+  document.getElementById('issueBadges').innerHTML = makeBadges(issueItems, 'issue');
+}
+
+// ── Table ─────────────────────────────────────────────
+function renderTable(data) {
+  document.getElementById('tbody').innerHTML = sortData(data).map(rowHTML).join('');
+}
+
+function rowHTML(d) {
+  if (d.error) {
+    const msg = d.error===404 ? 'not found or no access'
+              : d.error===401 ? 'unauthorized — check PAT' : `error ${d.error}`;
+    return `<tr><td><span class="repo-link">${esc(repoLabel(d.full_name))}</span></td>
+      <td colspan="3" style="font-size:11px;color:var(--text-dim);font-style:italic">${msg}</td></tr>`;
+  }
+
+  const hasExt = d.external_prs > 0 || d.external_issues > 0;
+  const ver    = d.latest_release
+    ? `<span class="vtag">${esc(d.latest_release.tag_name)}</span> · ${relTimeStr(d.latest_release.published_at)}`
+    : `<span style="color:var(--text-dim)">no release</span>`;
+
+  return `<tr class="${hasExt ? 'has-ext' : ''}">
+    <td>
+      <a class="repo-link" href="https://github.com/${d.full_name}" target="_blank" rel="noopener">${esc(repoLabel(d.full_name))}</a>
+      <div class="repo-ver">${ver}</div>
+    </td>
+    <td><span class="time-val ${timeClass(d.pushed_at)}">${relTimeStr(d.pushed_at)}</span></td>
+    <td><a class="cnt-link ${d.open_prs===0?'zero':''}" href="https://github.com/${d.full_name}/pulls" target="_blank" rel="noopener">${d.open_prs}</a></td>
+    <td><a class="cnt-link ${d.open_issues===0?'zero':''}" href="https://github.com/${d.full_name}/issues" target="_blank" rel="noopener">${d.open_issues}</a></td>
+  </tr>`;
+}
+
+function repoLabel(fullName) {
+  const [owner, name] = fullName.split('/');
+  return S.showOrg ? `${owner}/${name}` : name;
+}
+
+// ── Sort ──────────────────────────────────────────────
+const SORT_KEYS = {
+  name:   d => (d.full_name || '').toLowerCase(),
+  commit: d => new Date(d.pushed_at || 0).getTime(),
+  prs:    d => d.open_prs    || 0,
+  issues: d => d.open_issues || 0,
+};
+const COLS = ['name','commit','prs','issues'];
+
+function sortData(data) {
+  const key = SORT_KEYS[S.sortBy] || SORT_KEYS.commit;
+  return [...data].sort((a,b) => {
+    const av = key(a), bv = key(b);
+    if (typeof av === 'string') return S.sortDir==='asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+    return S.sortDir === 'asc' ? av - bv : bv - av;
+  });
+}
+
+function setSort(field) {
+  if (S.sortBy === field) {
+    S.sortDir = S.sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    S.sortBy  = field;
+    // Default direction per column
+    S.sortDir = field === 'commit' ? 'asc' : 'desc';
+  }
+  updateSortHeaders();
+  renderTable(S.data);
+}
+
+function updateSortHeaders() {
+  const arrow = S.sortDir === 'asc' ? '↑' : '↓';
+  COLS.forEach(c => {
+    const th  = document.getElementById(`th-${c}`);
+    const arr = document.getElementById(`arr-${c}`);
+    if (!th || !arr) return;
+    const active = c === S.sortBy;
+    th.classList.toggle('active', active);
+    arr.textContent = active ? arrow : '';
+  });
+}
+
+// ── Summary ───────────────────────────────────────────
+function updateSummary(data) {
+  const valid  = data.filter(d => !d.error);
+  const prs    = valid.reduce((s,d) => s + d.open_prs,    0);
+  const issues = valid.reduce((s,d) => s + d.open_issues, 0);
+  const attn   = valid.filter(d => d.external_prs>0 || d.external_issues>0).length;
+  const attnStr= attn > 0 ? ` · ${attn} need attention` : '';
+  const modeStr= S.pat ? '' : ' · no PAT (public repos only)';
+  const timeStr= S.loadedAt ? ` · updated ${relTimeStr(S.loadedAt.toISOString())}` : '';
+  document.getElementById('summaryBar').textContent =
+    `${data.length} repos · ${prs} open PRs · ${issues} open issues${attnStr}${modeStr}${timeStr}`;
+}
+function updateSummaryTime() { if (S.data.length) updateSummary(S.data); }
+
+// ── Skeleton ──────────────────────────────────────────
+function renderSkeleton(n) {
+  document.getElementById('tbody').innerHTML = Array.from({length:n}, () =>
+    `<tr><td><div class="skel" style="width:90px;margin-bottom:4px"></div><div class="skel" style="width:55px"></div></td>
+    <td><div class="skel" style="width:44px"></div></td>
+    <td><div class="skel" style="width:16px"></div></td>
+    <td><div class="skel" style="width:16px"></div></td></tr>`).join('');
+}
+
+// ── Config ────────────────────────────────────────────
+function openConfig() {
+  document.getElementById('patInput').value      = S.pat;
+  document.getElementById('reposInput').value    = S.repos.join('\n');
+  document.getElementById('showOrgToggle').checked = S.showOrg;
+  document.getElementById('configOverlay').classList.add('open');
+}
+function closeConfig() { document.getElementById('configOverlay').classList.remove('open'); }
+function overlayClick(e) { if (e.target===document.getElementById('configOverlay')) closeConfig(); }
+function saveConfig() {
+  const newPat  = document.getElementById('patInput').value.trim();
+  const newRepos= document.getElementById('reposInput').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const showOrg = document.getElementById('showOrgToggle').checked;
+  try {
+    localStorage.setItem('rw_pat',      newPat);
+    localStorage.setItem('rw_repos',    newRepos.join('\n'));
+    localStorage.setItem('rw_show_org', showOrg ? '1' : '0');
+  } catch(e) {}
+  S.pat = newPat; S.repos = newRepos; S.showOrg = showOrg;
+  S.currentUser = ''; S.data = [];
+  closeConfig();
+  load();
+}
+
+// ── Utilities ─────────────────────────────────────────
+function triggerRefresh() { S.data = []; load(); }
+function setSpinning(on) { document.getElementById('refreshBtn').classList.toggle('spinning', on); }
+function setPip(cls) { document.getElementById('pip').className = 'pip' + (cls ? ` ${cls}` : ''); }
+
+function relTimeStr(iso) {
+  if (!iso) return '—';
+  const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m/60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h/24);
+  if (d < 7)  return `${d}d ago`;
+  const w = Math.floor(d/7);
+  if (w < 5)  return `${w}w ago`;
+  return `${Math.floor(d/30)}mo ago`;
+}
+function timeClass(iso) {
+  if (!iso) return 'none';
+  const d = (Date.now()-new Date(iso).getTime())/86400000;
+  return d < 2 ? 'recent' : d > 45 ? 'stale' : '';
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') closeConfig();
+  if ((e.key==='r'||e.key==='R') && !e.ctrlKey && !e.metaKey
+      && document.activeElement.tagName!=='INPUT'
+      && document.activeElement.tagName!=='TEXTAREA') triggerRefresh();
+});
+
+init();
+</script>
