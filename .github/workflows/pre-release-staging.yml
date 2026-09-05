@@ -1,0 +1,35 @@
+name: Manual — Pre-Release Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Version tag override — leave blank to infer from open release-please PR
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+  models: read
+  pull-requests: read
+
+jobs:
+  stage:
+    uses: ScottKirvan/.github/.github/workflows/reusable-pre-release-staging.yml@main
+    with:
+      tag_name: ${{ inputs.tag_name }}
+      project_name: ${{ github.event.repository.name }}
+      # TODO: Replace with a one-sentence description of what this project does
+      project_context: "${{ github.event.repository.name }} is a project by ${{ github.repository_owner }}."
+      header: |
+        ## ${{ github.event.repository.name }}
+
+        > TODO: Replace with your project tagline.
+
+        ---
+      footer: |
+        ---
+        📖 [User Guide](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/) · 💬 [Discord](https://discord.gg/TN6XJSNK5Y) · 🐛 [Report a Bug](https://github.com/${{ github.repository }}/issues/new?template=bug_report.md) · ✨ [Request Feature](https://github.com/${{ github.repository }}/issues/new?template=feature_request.md)
+      changelog_path: "notes/CHANGELOG.md"
+    secrets: inherit
