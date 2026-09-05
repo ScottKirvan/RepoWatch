@@ -397,9 +397,12 @@ async function load() {
 
   // Fetch traffic only when PAT is present
   if (S.pat) {
-    const trafficArr = await Promise.all(S.repos.map(r => fetchTraffic(r, headers)));
-    const agg = aggregateTraffic(trafficArr);
-    renderChart(agg);
+    try {
+      const trafficArr = await Promise.all(S.repos.map(r => fetchTraffic(r, headers)));
+      renderChart(aggregateTraffic(trafficArr));
+    } catch(e) {
+      console.error('Traffic fetch failed:', e);
+    }
   }
 
   setPip('live');
@@ -451,7 +454,7 @@ function aggregateTraffic(arr) {
     byDate[key] = { views: 0, uniques: 0 };
   }
   arr.forEach(t => {
-    if (!t) return;
+    if (!t || !Array.isArray(t.views)) return;
     t.views.forEach(v => {
       const key = v.timestamp.split('T')[0];
       if (byDate[key]) { byDate[key].views += v.count; byDate[key].uniques += v.uniques; }
