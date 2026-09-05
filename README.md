@@ -98,6 +98,20 @@ A personal access token is optional for public repos but recommended if you have
 
 The PAT is stored only in your browser's `localStorage` and is sent only to `api.github.com`. It is never transmitted anywhere else.
 
+## Troubleshooting
+
+**"Add a GitHub PAT in Settings" message shows even after adding a PAT**  
+Hard-refresh the page (Ctrl+Shift+R / Cmd+Shift+R). The browser may be serving a cached version of the dashboard. If the message persists after a hard refresh, re-open Settings and confirm the PAT field is still populated — `localStorage` is cleared in private/incognito windows.
+
+**Traffic chart is flat at zero after adding a PAT**  
+The PAT doesn't have access to the traffic API. For a classic PAT, `repo` scope is required. For a fine-grained PAT, `Administration: Read` is the permission that unlocks traffic (not `Contents: Read`). If the scope is correct but the chart is still flat, the repos genuinely may have no recorded traffic — GitHub only starts logging once a repo receives its first external view.
+
+**Some repos show 403**  
+Without a PAT the GitHub API allows 60 requests/hour. Each repo fetches 4 endpoints, so more than ~15 repos will hit the limit. Adding any PAT raises the limit to 5,000/hour. Org repos with SAML SSO also require the PAT to be explicitly authorized for that org in [GitHub token settings](https://github.com/settings/tokens).
+
+**Release Please PRs appear as external attention badges**  
+Release Please PRs are authored by `github-actions[bot]`, which the dashboard filters out automatically. If they appear, do a hard-refresh — the browser may be running an older cached version that predates the bot filter.
+
 Contributions / Contact
 -----------------------
 - Please [file an issue](https://github.com/ScottKirvan/RepoWatch/issues/new), or [grab a fork](https://github.com/ScottKirvan/RepoWatch/fork), hack away, and submit a [pull request](https://github.com/ScottKirvan/RepoWatch/pulls).
