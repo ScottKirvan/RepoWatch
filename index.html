@@ -275,14 +275,14 @@ tbody td:first-child { padding-left: 13px; }
     <div class="chart-no-pat" id="chartNoPat">
       Add a GitHub PAT in <a onclick="openConfig()">Settings</a> to view traffic data.
     </div>
-    <svg id="chartSvg" viewBox="0 0 1000 65" preserveAspectRatio="none" hidden>
+    <svg id="chartSvg" viewBox="0 0 1000 65" preserveAspectRatio="none" style="display:none">
       <path id="chartArea" fill="#2f81f7" fill-opacity="0.12"/>
       <path id="chartLine" fill="none" stroke="#2f81f7" stroke-width="1.5" stroke-linejoin="round"/>
       <path id="chartUniq" fill="none" stroke="#2f81f7" stroke-width="1" stroke-linejoin="round" opacity="0.38"/>
       <circle id="chartPeak" r="2.5" fill="#2f81f7"/>
       <text id="chartPeakLbl" font-family="monospace" font-size="22" fill="#7d8590" opacity="0.65"/>
     </svg>
-    <div class="x-labels" id="chartLabels" hidden>
+    <div class="x-labels" id="chartLabels" style="display:none">
       <span style="left:0">14d</span>
       <span style="left:26.3%">7d</span>
       <span style="left:47.5%">3d</span>
@@ -484,11 +484,11 @@ function renderChart(data) {
   const lbls  = document.getElementById('chartLabels');
 
   if (!data || data.length === 0) {
-    noPat.hidden = false; svg.hidden = true; lbls.hidden = true;
+    noPat.style.display = ''; svg.style.display = 'none'; lbls.style.display = 'none';
     return;
   }
 
-  noPat.hidden = true; svg.hidden = false; lbls.hidden = false;
+  noPat.style.display = 'none'; svg.style.display = 'block'; lbls.style.display = '';
 
   const W = 1000, H = 65, PAD_TOP = 6;
   const CH = H - PAD_TOP;
