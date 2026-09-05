@@ -1,30 +1,30 @@
-﻿# ScooterGitTemplate [![starline](https://raw.githubusercontent.com/ScottKirvan/ScooterGitTemplate/refs/heads/starlines/ScottKirvan/ScooterGitTemplate/starline.svg)](https://github.com/qoomon/starlines)
+﻿# RepoWatch [![starline](https://raw.githubusercontent.com/ScottKirvan/RepoWatch/refs/heads/starlines/ScottKirvan/RepoWatch/starline.svg)](https://github.com/qoomon/starlines)
 <div align="center">
 
   <img src="assets/media/logo.jpg" alt="logo" width="200" height="auto" />
-    <h1><a href="https://github.com/ScottKirvan/ScooterGitTemplate">ScottKirvan/ScooterGitTemplate</a></h1>
+    <h1><a href="https://github.com/ScottKirvan/RepoWatch">ScottKirvan/RepoWatch</a></h1>
   <h3>Nulla nobis dicta iste minus dolor repellendus aspernatur atque</h3>
   
   
 <!-- Badges -->
 <p>
-  <a href="https://github.com/ScottKirvan/ScooterGitTemplate/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/ScottKirvan/ScooterGitTemplate" alt="contributors" />
+  <a href="https://github.com/ScottKirvan/RepoWatch/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/ScottKirvan/RepoWatch" alt="contributors" />
   </a>
   <a href="">
-    <img src="https://img.shields.io/github/last-commit/ScottKirvan/ScooterGitTemplate" alt="last update" />
+    <img src="https://img.shields.io/github/last-commit/ScottKirvan/RepoWatch" alt="last update" />
   </a>
-  <a href="https://github.com/ScottKirvan/ScooterGitTemplate/network/members">
-    <img src="https://img.shields.io/github/forks/ScottKirvan/ScooterGitTemplate" alt="forks" />
+  <a href="https://github.com/ScottKirvan/RepoWatch/network/members">
+    <img src="https://img.shields.io/github/forks/ScottKirvan/RepoWatch" alt="forks" />
   </a>
-  <a href="https://github.com/ScottKirvan/ScooterGitTemplate/stargazers">
-    <img src="https://img.shields.io/github/stars/ScottKirvan/ScooterGitTemplate" alt="stars" />
+  <a href="https://github.com/ScottKirvan/RepoWatch/stargazers">
+    <img src="https://img.shields.io/github/stars/ScottKirvan/RepoWatch" alt="stars" />
   </a>
-  <a href="https://github.com/ScottKirvan/ScooterGitTemplate/issues/">
-    <img src="https://img.shields.io/github/issues/ScottKirvan/ScooterGitTemplate" alt="open issues" />
+  <a href="https://github.com/ScottKirvan/RepoWatch/issues/">
+    <img src="https://img.shields.io/github/issues/ScottKirvan/RepoWatch" alt="open issues" />
   </a>
-  <a href="https://github.com/ScottKirvan/ScooterGitTemplate/blob/main/LICENSE.md">
-    <img src="https://img.shields.io/github/license/ScottKirvan/ScooterGitTemplate.svg" alt="license" />
+  <a href="https://github.com/ScottKirvan/RepoWatch/blob/main/LICENSE.md">
+    <img src="https://img.shields.io/github/license/ScottKirvan/RepoWatch.svg" alt="license" />
   </a>
   <a href="https://discord.gg/TN6XJSNK5Y">
     <!--<img src="https://img.shields.io/discord/704680098577514527?style=flat-square&label=%F0%9F%92%AC%20discord&color=00ACD7">-->
@@ -35,15 +35,15 @@
 <h4>
     <a href="https://tinyurl.com/3vf7whyd">View Demo</a>
   <span> · </span>
-    <a href="https://github.com/ScottKirvan/ScooterGitTemplate/blob/main/README.md">Documentation</a>
+    <a href="https://github.com/ScottKirvan/RepoWatch/blob/main/README.md">Documentation</a>
   <span> · </span>
-    <a href="https://github.com/ScottKirvan/ScooterGitTemplate/issues/new?template=bug_report.md">Report Bug</a>
+    <a href="https://github.com/ScottKirvan/RepoWatch/issues/new?template=bug_report.md">Report Bug</a>
   <span> · </span>
-    <a href="https://github.com/ScottKirvan/ScooterGitTemplate/issues/new?template=feature_request.md">Request Feature</a>
+    <a href="https://github.com/ScottKirvan/RepoWatch/issues/new?template=feature_request.md">Request Feature</a>
   </h4>
 </div>
 
-**ScooterGitTemplate** is voluptatibus magni nemo est. Nulla nobis dicta iste minus dolor repellendus aspernatur atque. Earum expedita aut inventore tempora fugiat deleniti. Molestias minima nam expedita beatae totam ipsa reprehenderit animi. Occaecati quibusdam beatae ducimus voluptate ut doloribus vitae amet. Quia ut ut voluptate dignissimos adipisci dolorum rem.
+**RepoWatch** is voluptatibus magni nemo est. Nulla nobis dicta iste minus dolor repellendus aspernatur atque. Earum expedita aut inventore tempora fugiat deleniti. Molestias minima nam expedita beatae totam ipsa reprehenderit animi. Occaecati quibusdam beatae ducimus voluptate ut doloribus vitae amet. Quia ut ut voluptate dignissimos adipisci dolorum rem.
 
 ## Getting Started with This Template
 
@@ -64,12 +64,12 @@
 
 Branches
 --------
-`main` is the [deployed](https://www.scottkirvan.com/ScooterGitTemplate/) branch.  The repo doesn't currently contain any other historic or dev branches.
+`main` is the [deployed](https://ScottKirvan.github.io/RepoWatch/) branch.  The repo doesn't currently contain any other historic or dev branches.
 
 Repo Layout
 -----------
 ```
-ScooterGitTemplate
+RepoWatch
 ├───_layouts                     # Jekyll layouts for GitHub Pages
 ├───.github
 │   ├───gitignore-templates      # Example .gitignore files (Unreal, Unity, Python, etc.)
@@ -133,14 +133,14 @@ Usage
 
 Contributions / Contact
 -----------------------
-- Please [file an issue](https://github.com/ScottKirvan/ScooterGitTemplate/issues/new), or [grab a fork](https://github.com/ScottKirvan/ScooterGitTemplate/fork), hack away, and submit a [pull request](https://github.com/ScottKirvan/ScooterGitTemplate/pulls).
+- Please [file an issue](https://github.com/ScottKirvan/RepoWatch/issues/new), or [grab a fork](https://github.com/ScottKirvan/RepoWatch/fork), hack away, and submit a [pull request](https://github.com/ScottKirvan/RepoWatch/pulls).
 - Contact me at [linkedin.com/in/scottkirvan/](https://www.linkedin.com/in/scottkirvan/)
 - You can also contact me at my [discord](https://discord.gg/TN6XJSNK5Y) server, I'm cptvideo.
 
 Credits
 -------
-**[ScooterGitTemplate](https://github.com/ScottKirvan/ScooterGitTemplate)** — Copyright (c) 2025 [Scott Kirvan](https://github.com/ScottKirvan). [MIT License](LICENSE.md).
+**[RepoWatch](https://github.com/ScottKirvan/RepoWatch)** — Copyright (c) 2025 [Scott Kirvan](https://github.com/ScottKirvan). [MIT License](LICENSE.md).
 
-Project Link:  [ScooterGitTemplate](https://github.com/ScottKirvan/ScooterGitTemplate)  
+Project Link:  [RepoWatch](https://github.com/ScottKirvan/RepoWatch)  
 [CHANGELOG](notes/CHANGELOG.md)  
 [TODO](notes/TODO.md)

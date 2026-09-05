@@ -1,4 +1,4 @@
-# CLAUDE.md — ScooterGitTemplate
+# CLAUDE.md — RepoWatch
 
 ## Keeping This File Current
 

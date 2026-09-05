@@ -1,6 +1,6 @@
-# Contributing to ScooterGitTemplate
+# Contributing to RepoWatch
 
-First off, thank you for considering contributing to ScooterGitTemplate! It's people like you that make this template better for everyone.
+First off, thank you for considering contributing to RepoWatch! It's people like you that make this template better for everyone.
 
 ## Code of Conduct
 
@@ -78,7 +78,7 @@ feat!: change template initialization workflow
 ## Project Structure
 
 ```
-ScooterGitTemplate/
+RepoWatch/
 ├── .github/
 │   ├── gitignore-templates/  # Example .gitignore files
 │   ├── ISSUE_TEMPLATE/       # Issue templates
