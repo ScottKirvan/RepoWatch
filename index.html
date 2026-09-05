@@ -1,5 +1,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#161b22">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RepoWatch">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>RepoWatch</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap">
 <style>
@@ -375,8 +381,8 @@ function init() {
                   .split('\n').map(s => s.trim()).filter(Boolean);
     S.showOrg = localStorage.getItem('rw_show_org') === '1';
   } catch(e) { S.repos = DEFAULT_REPOS.slice(); }
-  // Reflect saved sort in headers immediately
   updateSortHeaders();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
   load();
 }
 
