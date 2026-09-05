@@ -48,7 +48,7 @@
 ## Features
 
 - **No auth required for public repos** — loads real data from the GitHub API immediately, no login, no setup
-- **PAT optional** — add a GitHub personal access token in Settings to unlock traffic data (views/clones) and private repos
+- **PAT optional** — add a GitHub personal access token in Settings to unlock traffic data (views/clones) and private repos; also required once you exceed ~15 public repos (unauthenticated API limit is 60 requests/hour, 4 per repo)
 - **Traffic chart** — 14-day area chart with logarithmic time axis (recent days expanded) and square-root value scale
 - **Attention badges** — one row for open PRs, one row for open Issues; only repos with external contributor activity appear; each badge links to the filtered GitHub page
 - **Sortable table** — click any column header (Repo, Last Push, PRs, Issues) to sort; default is oldest push first
@@ -74,11 +74,29 @@ Fork the repo and enable GitHub Pages (Settings → Pages → Branch: `main`, fo
 1. Open the dashboard
 2. Enter a GitHub username or org in the **Settings** panel
 3. Add repos in `owner/repo` format, one per line
-4. Optionally add a [GitHub PAT](https://github.com/settings/tokens) (classic, `repo` scope) to see traffic data
+4. Optionally add a [GitHub PAT](https://github.com/settings/tokens) — see **GitHub PAT** below
 5. Click **Load** — data loads from the GitHub API and displays immediately
 6. Click any column header to re-sort the table
 7. Click a PR or Issue count to open the filtered GitHub page
 8. Click the traffic chart area to (eventually) open a detail view
+
+## GitHub PAT
+
+A personal access token is optional for public repos but recommended if you have more than ~15 repos (unauthenticated requests are capped at 60/hour; each repo costs 4).
+
+**When you need a PAT:**
+- More than ~15 public repos in your list
+- Any private repos
+- Traffic data (views/clones chart) — requires push access to each repo
+- Org repos protected by SAML SSO — the PAT must be authorized for that org
+
+**Creating a PAT:**
+
+*Classic PAT* (simpler): [github.com/settings/tokens](https://github.com/settings/tokens) → Generate new token (classic) → select `repo` scope.
+
+*Fine-grained PAT* (more secure): [github.com/settings/tokens](https://github.com/settings/tokens) → Generate new token (fine-grained) → select repositories → grant **Contents: Read**, **Metadata: Read**, and **Administration: Read** (needed for traffic).
+
+The PAT is stored only in your browser's `localStorage` and is sent only to `api.github.com`. It is never transmitted anywhere else.
 
 Contributions / Contact
 -----------------------
