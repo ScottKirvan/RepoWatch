@@ -10,7 +10,13 @@ RepoWatch is a single-page GitHub repo health dashboard — installable as a PWA
 
 ### Architecture
 
-`index.html` is the entire application — all HTML, CSS, and JS inline. There is no `package.json`, no bundler, no transpilation, no test suite. `sw.js` handles PWA offline caching. `manifest.json` is the PWA manifest. Everything ships as-is; do not introduce a build step.
+`index.html` is the entire application — all HTML, CSS, and JS inline, with no module wrapper, so every top-level function (`sortData`, `aggregateTraffic`, `fetchWorkflowRuns`, `mapEvent`, etc.) is reachable as a global in the browser. There is no bundler and no transpilation. `sw.js` handles PWA offline caching. `manifest.json` is the PWA manifest. The shipped app has no build step — do not introduce one.
+
+`package.json` exists solely for the dev-time Playwright test suite (see Testing below); it is not involved in how the app is built or served.
+
+### Testing
+
+Playwright Test drives the real `index.html` in a headless browser — no build step, no mocked DOM. `npm test` runs the suite (`npm run serve` starts the same zero-dependency static server standalone, at `scripts/serve.js`, for manual poking). Tests call the page's global functions directly via `page.evaluate` for pure logic (classification, aggregation, event mapping), and drive the DOM/localStorage for behavioral checks (sort persistence, feed rendering). CI runs the suite on every push and PR (`.github/workflows/test.yml`).
 
 ### State model
 

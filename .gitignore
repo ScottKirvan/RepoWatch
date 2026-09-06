@@ -1,3 +1,10 @@
 *.code-workspace
 .obsidian/*
 .claude/
+
+# Test tooling (Playwright) — the shipped app itself has no build step
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
