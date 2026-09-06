@@ -309,7 +309,7 @@ a.ci-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; 
       <span style="left:26.3%">7d</span>
       <span style="left:47.5%">3d</span>
       <span style="left:73.8%">1d</span>
-      <span style="right:0">now</span>
+      <span style="right:0">yest</span>
     </div>
   </div>
 </section>
@@ -542,7 +542,7 @@ function ciCellHTML(d) {
 
 function aggregateTraffic(arr) {
   const byDate = {};
-  for (let i = 13; i >= 0; i--) {
+  for (let i = 14; i >= 1; i--) {
     const key = new Date(Date.now() - i*86400000).toISOString().split('T')[0];
     byDate[key] = { views: 0, uniques: 0 };
   }
