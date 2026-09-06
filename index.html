@@ -15,7 +15,7 @@
   --text: #e6edf3; --text-muted: #7d8590; --text-dim: #484f58;
   --accent: #2f81f7; --accent-muted: rgba(47,129,247,0.1);
   --ext: #f85149; --ext-muted: rgba(248,81,73,0.10);
-  --good: #3fb950; --warn: #d29922;
+  --good: #3fb950; --warn: #d29922; --ice: #58d4e8;
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
@@ -24,7 +24,7 @@
     --text: #1f2328; --text-muted: #57606a; --text-dim: #8c959f;
     --accent: #0969da; --accent-muted: rgba(9,105,218,0.07);
     --ext: #cf222e; --ext-muted: rgba(207,34,46,0.07);
-    --good: #1a7f37; --warn: #9a6700;
+    --good: #1a7f37; --warn: #9a6700; --ice: #0891b2;
   }
 }
 :root[data-theme="light"] {
@@ -33,7 +33,7 @@
   --text: #1f2328; --text-muted: #57606a; --text-dim: #8c959f;
   --accent: #0969da; --accent-muted: rgba(9,105,218,0.07);
   --ext: #cf222e; --ext-muted: rgba(207,34,46,0.07);
-  --good: #1a7f37; --warn: #9a6700;
+  --good: #1a7f37; --warn: #9a6700; --ice: #0891b2;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -205,6 +205,7 @@ a.ci-dot:hover { opacity: 0.7; }
 a.ci-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .ci-green  { background: var(--good); box-shadow: 0 0 5px var(--good); }
 .ci-yellow { background: var(--warn); }
+.ci-ice    { background: var(--ice);  box-shadow: 0 0 5px var(--ice); }
 .ci-red    { background: var(--ext);  box-shadow: 0 0 5px var(--ext); }
 
 /* Skeleton */
@@ -482,8 +483,9 @@ async function fetchTraffic(fullName, headers) {
   } catch(e) { return null; }
 }
 
-const CI_RED    = new Set(['failure','timed_out','startup_failure','action_required']);
-const CI_YELLOW = new Set(['cancelled','in_progress','queued','waiting']);
+const CI_RED    = new Set(['failure','timed_out','startup_failure']);
+const CI_ICE    = new Set(['waiting','pending','action_required']);
+const CI_YELLOW = new Set(['cancelled','in_progress','queued']);
 
 async function fetchWorkflowRuns(fullName, headers) {
   try {
@@ -502,7 +504,10 @@ async function fetchWorkflowRuns(fullName, headers) {
     }
 
     for (const run of latest) {
-      if (CI_RED.has(run.conclusion || run.status)) return { level: 'red', workflows: latest };
+      if (CI_RED.has(run.conclusion || run.status))    return { level: 'red',    workflows: latest };
+    }
+    for (const run of latest) {
+      if (CI_ICE.has(run.conclusion || run.status))    return { level: 'ice',    workflows: latest };
     }
     for (const run of latest) {
       if (CI_YELLOW.has(run.conclusion || run.status)) return { level: 'yellow', workflows: latest };
@@ -515,8 +520,8 @@ function ciTooltip(ci) {
   if (!ci || ci.level === 'none') return 'No workflow runs found';
   return ci.workflows.map(run => {
     const c = run.conclusion || run.status;
-    const icon = CI_RED.has(c) ? '✗' : CI_YELLOW.has(c) ? '○' : '✓';
-    const detail = (CI_RED.has(c) || CI_YELLOW.has(c)) ? ` (${c})` : '';
+    const icon = CI_RED.has(c) ? '✗' : CI_ICE.has(c) ? '⏸' : CI_YELLOW.has(c) ? '○' : '✓';
+    const detail = (CI_RED.has(c) || CI_ICE.has(c) || CI_YELLOW.has(c)) ? ` (${c})` : '';
     return `${icon} ${run.name}${detail}`;
   }).join('\n');
 }
@@ -675,7 +680,7 @@ function repoLabel(fullName) {
 }
 
 // ── Sort ──────────────────────────────────────────────
-const CI_LEVEL = { red: 0, yellow: 1, green: 2, none: 3 };
+const CI_LEVEL = { red: 0, ice: 1, yellow: 2, green: 3, none: 4 };
 const SORT_KEYS = {
   name:   d => (d.full_name || '').toLowerCase(),
   commit: d => new Date(d.pushed_at || 0).getTime(),
