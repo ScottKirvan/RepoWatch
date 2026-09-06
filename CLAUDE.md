@@ -1,5 +1,65 @@
 # CLAUDE.md — RepoWatch
 
+## Project
+
+RepoWatch is a single-page GitHub repo health dashboard — installable as a PWA, no build step.
+
+**GitHub repo:** `ScottKirvan/RepoWatch` (public)  
+**Owner:** Scott Kirvan (anthropic@skvfx.com)  
+**Live app:** served directly from `index.html` on GitHub Pages
+
+### Architecture
+
+`index.html` is the entire application — all HTML, CSS, and JS inline. There is no `package.json`, no bundler, no transpilation, no test suite. `sw.js` handles PWA offline caching. `manifest.json` is the PWA manifest. Everything ships as-is; do not introduce a build step.
+
+### State model
+
+All runtime state lives in a single `S` object at the top of the inline script:
+
+```js
+const S = {
+  pat, repos, showOrg, showFeed,       // persisted to localStorage
+  currentUser, loadedAt,               // derived at load time
+  data,                                // fetched repo metadata
+  feedItems, feedEtag, feedPollTimer,  // event feed
+};
+```
+
+localStorage keys: `rw_pat`, `rw_repos`, `rw_org`, `rw_feed`.
+
+### Key features
+
+- **Repo table** — sortable: name, visibility, last push, open issues, stars, latest release, CI status.
+- **CI status dots** — PAT-gated; color-coded per latest workflow run. Calls `/repos/{owner}/{repo}/actions/runs?per_page=10`. Dedupes by workflow name (newest per workflow). Classification:
+  - `CI_RED` (`failure`, `timed_out`, `startup_failure`) — red glow
+  - `CI_ICE` (`waiting`, `pending`, `action_required`) — cyan `--ice` glow (blocked/waiting for approval)
+  - `CI_YELLOW` (`cancelled`, `in_progress`, `queued`) — yellow, no glow
+  - Green (`success`, `neutral`, `skipped`) — green glow
+- **Traffic chart** — 14-day aggregate (days 1–14; day 0 is always empty because GitHub's traffic API is day-aggregated UTC with no real-time endpoint). X-axis label: "yest" for the most recent bucket.
+- **Event feed ticker** — continuous CSS marquee strip below the traffic chart. Polls `/users/{username}/events` every 60 s using ETag conditional requests (respects `X-Poll-Interval: 60`). Shows 5 most recent events across monitored repos; deduplicates PushEvents within 5-min windows. PAT-gated, opt-in via Settings toggle. CSS: doubled chip set + `translateX(0 → -50%)` keyframe for seamless loop.
+
+### Security constraint — must be preserved
+
+The PAT is stored **only** in `localStorage` and sent **only** to `api.github.com`. It is never transmitted to any other origin. Do not add code that sends the PAT elsewhere.
+
+### CSS token system
+
+Theme-aware via CSS custom properties on `:root` (dark default) and `@media (prefers-color-scheme: light)`:
+
+| Token | Dark | Light | Purpose |
+|---|---|---|---|
+| `--accent` | `#2f81f7` | `#0969da` | Primary interactive blue |
+| `--ice` | `#58d4e8` | `#0891b2` | Blocked/waiting CI state |
+| `--good` | `#3fb950` | `#1a7f37` | Success / healthy |
+| `--warn` | `#d29922` | `#9a6700` | Warning / in-progress |
+| `--ext` | `#f85149` | `#cf222e` | Failure / stale |
+
+### Branching exception
+
+Scott has granted explicit permission to commit and push directly to `main` for routine fixes and features. PRs are also acceptable — either approach is fine. The general "never push to main" rule in the conventions below does not apply to this repo.
+
+---
+
 ## Keeping This File Current
 
 This file is the primary context for any agent working in this repo — keep it accurate
