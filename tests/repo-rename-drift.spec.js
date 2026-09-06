@@ -27,7 +27,11 @@ test.describe('fetchRepo canonical full_name', () => {
       const realFetch = window.fetch;
       window.fetch = async (url) => {
         if (String(url).endsWith('/repos/owner/old-name')) {
-          return { ok: true, json: async () => ({ full_name: 'owner/new-name', pushed_at: '2026-01-01T00:00:00Z' }) };
+          return {
+            ok: true,
+            headers: { get: () => null },
+            json: async () => ({ full_name: 'owner/new-name', pushed_at: '2026-01-01T00:00:00Z' }),
+          };
         }
         if (String(url).includes('/releases/latest')) return { ok: false, status: 404 };
         if (String(url).includes('/pulls'))           return { ok: true, json: async () => [] };

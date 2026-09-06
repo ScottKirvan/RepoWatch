@@ -137,6 +137,11 @@ header {
   font-family: 'JetBrains Mono', monospace; letter-spacing: -0.01em;
   border-bottom: 1px solid var(--border-subtle);
 }
+.rate-limit-bar {
+  padding: 5px 16px; font-size: 11px; color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace; letter-spacing: -0.01em;
+  border-top: 1px solid var(--border-subtle);
+}
 
 /* ── Table ── */
 .table-wrap { overflow-x: auto; }
@@ -390,6 +395,8 @@ a.ci-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; 
   </table>
 </div>
 
+<div class="rate-limit-bar" id="rateLimitBar" style="display:none"></div>
+
 <div class="config-overlay" id="configOverlay" onclick="overlayClick(event)">
   <div class="config-panel">
     <div class="config-head">
@@ -431,6 +438,7 @@ const S = {
   sortBy: 'commit', sortDir: 'asc',   // oldest first by default
   data: [], loadedAt: null,
   showFeed: false, feedItems: [], feedEtag: '', feedPollTimer: null,
+  rateLimit: null,
 };
 
 // ── Init ──────────────────────────────────────────────
@@ -498,6 +506,30 @@ async function load() {
   renderAll();
 }
 
+// ── Rate limit ────────────────────────────────────────
+// GitHub returns these headers on every API response (even error ones),
+// authenticated or not — reading them off calls we're already making
+// costs nothing extra, unlike a dedicated call to /rate_limit.
+function captureRateLimit(res) {
+  const limit     = res.headers.get('X-RateLimit-Limit');
+  const remaining = res.headers.get('X-RateLimit-Remaining');
+  const reset     = res.headers.get('X-RateLimit-Reset');
+  if (limit == null || remaining == null || reset == null) return;
+  S.rateLimit = { limit: +limit, remaining: +remaining, reset: +reset };
+  renderRateLimit();
+}
+
+function renderRateLimit() {
+  const el = document.getElementById('rateLimitBar');
+  if (!el) return;
+  if (!S.rateLimit) { el.style.display = 'none'; return; }
+  const { limit, remaining, reset } = S.rateLimit;
+  const used = limit - remaining;
+  const mins = Math.max(0, Math.round((reset * 1000 - Date.now()) / 60000));
+  el.textContent = `GitHub API: ${used.toLocaleString()} / ${limit.toLocaleString()} used this hour · resets in ${mins}m`;
+  el.style.display = '';
+}
+
 async function fetchRepo(fullName, headers) {
   const base = `https://api.github.com/repos/${fullName}`;
   try {
@@ -507,6 +539,7 @@ async function fetchRepo(fullName, headers) {
       fetch(`${base}/pulls?state=open&per_page=100`, { headers }),
       fetch(`${base}/issues?state=open&per_page=100`, { headers }),
     ]);
+    captureRateLimit(repoRes);
     if (!repoRes.ok) return { full_name: fullName, error: repoRes.status };
     const repo    = await repoRes.json();
     const release = relRes.ok && relRes.status !== 404 ? await relRes.json() : null;
@@ -790,7 +823,10 @@ function updateSummary(data) {
   document.getElementById('summaryBar').textContent =
     `${data.length} repos · ${prs} open PRs · ${issues} open issues${attnStr}${modeStr}${timeStr}`;
 }
-function updateSummaryTime() { if (S.data.length) updateSummary(S.data); }
+function updateSummaryTime() {
+  if (S.data.length) updateSummary(S.data);
+  renderRateLimit();
+}
 
 // ── Skeleton ──────────────────────────────────────────
 function renderSkeleton(n) {
@@ -952,6 +988,7 @@ async function pollEvents() {
   if (S.feedEtag) headers['If-None-Match'] = S.feedEtag;
   try {
     const r = await fetch(`https://api.github.com/users/${S.currentUser}/events`, { headers });
+    captureRateLimit(r);
     if (r.status === 304) return;
     if (!r.ok) return;
     S.feedEtag = r.headers.get('ETag') || S.feedEtag;

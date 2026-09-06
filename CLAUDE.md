@@ -28,6 +28,7 @@ const S = {
   currentUser, loadedAt,               // derived at load time
   data,                                // fetched repo metadata
   feedItems, feedEtag, feedPollTimer,  // event feed
+  rateLimit,                           // { limit, remaining, reset } — GitHub API quota
 };
 ```
 
@@ -43,6 +44,7 @@ localStorage keys: `rw_pat`, `rw_repos`, `rw_show_org`, `rw_feed`, `rw_sort_by`,
   - Green (`success`, `neutral`, `skipped`) — green glow
 - **Traffic chart** — 14-day aggregate (days 1–14; day 0 is always empty because GitHub's traffic API is day-aggregated UTC with no real-time endpoint). X-axis label: "yest" for the most recent bucket.
 - **Event feed ticker** — continuous CSS marquee strip below the traffic chart. Polls `/users/{username}/events` every 60 s using ETag conditional requests (respects `X-Poll-Interval: 60`). Shows 5 most recent events across monitored repos; deduplicates PushEvents within 5-min windows. PAT-gated, opt-in via Settings toggle. CSS: doubled chip set + `translateX(0 → -50%)` keyframe for seamless loop.
+- **Rate limit bar** — footer bar below the table showing GitHub API quota used this hour and reset countdown. Reads the `X-RateLimit-*` headers GitHub returns on every API response (even errors, authenticated or not) rather than making a dedicated call — captured off the per-repo fetch in `fetchRepo()` and the feed poll in `pollEvents()`. Countdown text also refreshes on the existing 60s `updateSummaryTime` tick from cached state, no extra network call.
 
 ### Security constraint — must be preserved
 
