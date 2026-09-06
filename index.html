@@ -286,7 +286,6 @@ a.ci-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; 
   display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0;
   animation: feed-scroll 30s linear infinite;
 }
-/* hover-pause managed in JS to avoid stuck state on tab switch */
 @keyframes feed-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
@@ -1016,23 +1015,6 @@ document.addEventListener('keydown', e => {
       && document.activeElement.tagName!=='TEXTAREA') triggerRefresh();
 });
 
-// Feed hover-pause via event delegation on stable container (survives renderFeed re-renders).
-// CSS :hover is avoided because mouseleave never fires when a link opens a new tab,
-// leaving animation-play-state stuck on paused after the user returns.
-document.getElementById('feedRow').addEventListener('mouseenter', () => {
-  const el = document.querySelector('.feed-inner');
-  if (el) el.style.animationPlayState = 'paused';
-}, true);
-document.getElementById('feedRow').addEventListener('mouseleave', () => {
-  const el = document.querySelector('.feed-inner');
-  if (el) el.style.animationPlayState = 'running';
-}, true);
-// visibilitychange doesn't fire when target="_blank" opens a new tab (original tab stays
-// "visible"); window focus/blur does, so use that to unstick the paused state.
-window.addEventListener('focus', () => {
-  const el = document.querySelector('.feed-inner');
-  if (el) el.style.animationPlayState = 'running';
-});
 
 init();
 </script>
