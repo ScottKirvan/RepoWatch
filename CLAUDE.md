@@ -62,7 +62,9 @@ Theme-aware via CSS custom properties on `:root` (dark default) and `@media (pre
 
 ### Branching exception
 
-Scott has granted explicit permission to commit and push directly to `main` for routine fixes and features. PRs are also acceptable — either approach is fine. The general "never push to main" rule in the conventions below does not apply to this repo.
+Scott has granted explicit permission to commit and push directly to `main` for routine fixes and features. The general "never push to main" rule in the conventions below does not apply to this repo.
+
+As of 2026-09-06, default to committing straight to `main` rather than branch+PR — this is a fun, low-stakes repo for Scott. Use branch+PR again only if he says otherwise.
 
 ---
 
