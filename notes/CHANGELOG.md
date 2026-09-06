@@ -32,6 +32,8 @@
 * use style.display instead of hidden attribute for chart visibility ([e53786a](https://github.com/ScottKirvan/RepoWatch/commit/e53786a3a8dbf038db0036eea122974355686ab9))
 * use window focus event to resume feed marquee after tab switch ([505b385](https://github.com/ScottKirvan/RepoWatch/commit/505b38532b4541a22cf4352e620169372235c1dc))
 
+Includes PRs: [#14](https://github.com/ScottKirvan/RepoWatch/pull/14), [#15](https://github.com/ScottKirvan/RepoWatch/pull/15), [#17](https://github.com/ScottKirvan/RepoWatch/pull/17), [#3](https://github.com/ScottKirvan/RepoWatch/pull/3), [#7](https://github.com/ScottKirvan/RepoWatch/pull/7), [#8](https://github.com/ScottKirvan/RepoWatch/pull/8)
+
 ## 0.0.0 (2026-09-05)
 
 
