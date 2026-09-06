@@ -113,6 +113,37 @@ alternative or do the work from first principles — not to defer the requiremen
 revise it to fit the limitation. The requirements define what the project needs; the
 implementation serves the requirements, not the other way around.
 
+## Change as Experiment
+
+Work proceeds in small, verifiable, safe, directed steps — not a plan executed end to
+end. Each step is small enough to evaluate on its own: land it, check whether it moved
+things in the right direction, then decide the next step from what was just learned
+rather than from what was originally guessed. Treat every change as an experiment with
+a check at the end, not a commitment to a predetermined path.
+
+## Verification Discipline
+
+Never state that something works, is fixed, or is verified unless it was checked at
+that exact moment with a command whose output is the actual basis for the claim — not
+memory of an earlier check, not knowledge of what the code is supposed to do, and not
+a sub-agent's self-report taken at face value. The standard is identical in both
+directions: the skepticism applied to a sub-agent's "done" (see Sub-Agent Workflow)
+applies just as much to Claude's own claims to the user.
+
+Before reporting a task or verification as complete:
+- State the concrete, checkable success criteria before running anything — specific
+  facts ("a PR exists against branch X containing files A and B"), not a general
+  expectation ("it should work").
+- Check every criterion with a fresh command at the time of the claim, and cite its
+  actual output as the basis for what's reported.
+- If a task has multiple required scenarios (e.g. two code paths, or a dev environment
+  and the real deployment target), track them explicitly and don't report the whole
+  task done until every one has been checked — a passing sub-step is not a finished
+  task.
+- Report against the criteria list: state plainly what's verified and what isn't,
+  rather than describing the completed part in success language and leaving gaps
+  implicit.
+
 ## Communication
 
 Ask questions in natural language. Never use a multiple choice / structured question
@@ -128,6 +159,33 @@ a real answer, not to pick from a menu.
 Make implementation decisions independently — don't ask permission for technical
 choices within the stated requirements. Escalate only when something would change
 scope, defer a requirement, or contradict what the user has described as the goal.
+
+A structural choice made while implementing a functional request — naming, module
+boundaries, a relationship between two pieces — is mine to propose, but must be
+flagged as a proposal, not written into this file, a spec, or code comments with the
+same authority as something the user actually decided.
+
+A description of a desired change is not, by itself, authorization to execute it. If a
+message separates *what* to do from *when* ("I'll tell you when"), wait for the
+explicit go-ahead before acting — even on a fully-specified, low-risk change.
+
+**IF YOU CANNOT DO EXACTLY WHAT WAS ASKED — DUE TO A TECHNICAL CONSTRAINT OR ANY OTHER
+REASON — STATE THE CONSTRAINT AND STOP.** Do not silently substitute an alternative and
+proceed to implement it in the same turn. Naming the blocker is not itself permission
+to pick a workaround; the user decides which alternative (if any) to pursue. This
+applies even when the substitute seems obviously reasonable.
+
+**Two-strike auto-comply.** If corrected twice on the same point, treat the second
+correction as an automatic stop: comply immediately, with no further justification or
+re-explanation. Don't make the user repeat themselves a third time or invoke a
+stop-word to get compliance — repetition itself is the signal.
+
+**Mark proposals as proposals.** Any architectural or structural choice made while
+implementing — one not a direct restatement of something the user actually decided —
+gets written into a spec, `CLAUDE.md`, or other persistent doc as `[Proposed —
+unconfirmed]`, not plain declarative text carrying the same authority as a real
+decision. Don't unmark your own proposal; only the user confirming it (or leaving it
+alone) makes it settled.
 
 ## Attribution
 
@@ -168,6 +226,15 @@ When using sub-agents for implementation:
 
 - Brief sub-agents on **what** to build, not **how** — implementation decisions belong
   to the sub-agent, which serves as an independent second opinion on the approach.
+- Not every implementation choice is "how." A choice is **load-bearing** — and belongs
+  in the brief as a stated constraint, not left implicit — if getting it wrong would
+  foreclose a decision already made elsewhere, or if fixing it later would cascade into
+  sibling components rather than staying local to the one being built. The test: would
+  changing this later touch only this component, or would it touch others or
+  contradict something already decided? Local and reversible → genuinely "how,"
+  delegate freely. Cascading or hard to reverse → state it explicitly in the brief.
+  (Architecture — how two components relate, e.g. whether one delegates to the other —
+  is the case that's easiest to misclassify as "how" when it's actually load-bearing.)
 - Sub-agents follow all conventions in this file except they do not create PRs.
 - After a sub-agent completes, review its diff and tests before creating the PR.
   This review is a genuine code review, not a compliance check — evaluate correctness,
