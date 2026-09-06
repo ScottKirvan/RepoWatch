@@ -1,0 +1,13 @@
+{
+  "name": "repowatch",
+  "private": true,
+  "description": "Test tooling for RepoWatch. The app itself ships as plain index.html with no build step — this only adds a dev-time Playwright test suite.",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "serve": "node scripts/serve.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}
