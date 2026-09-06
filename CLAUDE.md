@@ -25,7 +25,7 @@ const S = {
 };
 ```
 
-localStorage keys: `rw_pat`, `rw_repos`, `rw_org`, `rw_feed`.
+localStorage keys: `rw_pat`, `rw_repos`, `rw_show_org`, `rw_feed`, `rw_sort_by`, `rw_sort_dir`.
 
 ### Key features
 

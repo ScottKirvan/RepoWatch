@@ -441,6 +441,10 @@ function init() {
                   .split('\n').map(s => s.trim()).filter(Boolean);
     S.showOrg  = localStorage.getItem('rw_show_org') === '1';
     S.showFeed = localStorage.getItem('rw_feed') === '1';
+    const savedSortBy = localStorage.getItem('rw_sort_by');
+    if (COLS.includes(savedSortBy)) S.sortBy = savedSortBy;
+    const savedSortDir = localStorage.getItem('rw_sort_dir');
+    if (savedSortDir === 'asc' || savedSortDir === 'desc') S.sortDir = savedSortDir;
   } catch(e) { S.repos = DEFAULT_REPOS.slice(); }
   updateSortHeaders();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -754,6 +758,10 @@ function setSort(field) {
     // Default direction: commit/ci ascending (oldest/worst first); others descending
     S.sortDir = (field === 'commit' || field === 'ci') ? 'asc' : 'desc';
   }
+  try {
+    localStorage.setItem('rw_sort_by',  S.sortBy);
+    localStorage.setItem('rw_sort_dir', S.sortDir);
+  } catch(e) {}
   updateSortHeaders();
   renderTable(S.data);
 }
