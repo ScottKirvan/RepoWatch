@@ -282,15 +282,22 @@ a.ci-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; 
   display: flex; align-items: center; overflow: hidden;
   flex: 1; gap: 0;
 }
+.feed-inner {
+  display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0;
+  animation: feed-scroll 30s linear infinite;
+}
+.feed-inner:hover { animation-play-state: paused; }
+@keyframes feed-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
 .feed-chip {
   font-family: 'JetBrains Mono', monospace; font-size: 11px;
   color: var(--text-muted); text-decoration: none; white-space: nowrap;
   padding: 0 10px; display: inline-flex; align-items: center; gap: 5px;
-  flex-shrink: 0;
-  opacity: 1; transform: translateX(0); transition: opacity 0.35s ease, transform 0.35s ease, color 0.1s;
+  flex-shrink: 0; transition: color 0.1s;
 }
 .feed-chip:hover { color: var(--text); }
-.feed-chip.feed-enter { opacity: 0; transform: translateX(32px); }
 .feed-sep {
   color: var(--border); font-size: 11px; flex-shrink: 0;
   font-family: 'JetBrains Mono', monospace; user-select: none;
@@ -978,8 +985,6 @@ async function pollEvents() {
   }
 }
 
-const _feedRenderedIds = new Set();
-
 function renderFeed() {
   const section = document.getElementById('feedSection');
   const row     = document.getElementById('feedRow');
@@ -990,26 +995,18 @@ function renderFeed() {
   section.style.display = '';
 
   const toShow = S.feedItems.slice(0, 5);
-  const parts  = [];
-  toShow.forEach((item, idx) => {
-    const isNew = !_feedRenderedIds.has(item.id);
-    parts.push(
-      `<a class="feed-chip${isNew ? ' feed-enter' : ''}" data-fid="${esc(item.id)}" href="${esc(item.url)}" target="_blank" rel="noopener">` +
-      `${item.icon} ${esc(item.repoName)} ${esc(item.verb)} · ${relTimeStr(item.createdAt)}</a>`
-    );
-    if (idx < toShow.length - 1) parts.push('<span class="feed-sep">·</span>');
-  });
+  // Adjust scroll speed to chip count so pace stays roughly constant
+  const dur = Math.max(15, toShow.length * 6);
 
-  row.innerHTML = parts.join('');
+  function chipsHTML() {
+    return toShow.map((item, idx) => {
+      const sep = idx < toShow.length - 1 ? '<span class="feed-sep">·</span>' : '';
+      return `<a class="feed-chip" href="${esc(item.url)}" target="_blank" rel="noopener">${item.icon} ${esc(item.repoName)} ${esc(item.verb)} · ${relTimeStr(item.createdAt)}</a>${sep}`;
+    }).join('');
+  }
 
-  // Trigger entry animation then remove class; track rendered ids
-  toShow.forEach(item => {
-    if (!_feedRenderedIds.has(item.id)) {
-      _feedRenderedIds.add(item.id);
-      const el = row.querySelector(`[data-fid="${item.id}"]`);
-      if (el) requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('feed-enter')));
-    }
-  });
+  // Double the chip set for a seamless loop: animate translateX(0 → -50%)
+  row.innerHTML = `<div class="feed-inner" style="animation-duration:${dur}s">${chipsHTML()}<span class="feed-sep" style="padding:0 8px">·</span>${chipsHTML()}</div>`;
 }
 
 document.addEventListener('keydown', e => {
