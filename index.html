@@ -870,7 +870,6 @@ function stopFeedPoll() {
   if (S.feedPollTimer) { clearInterval(S.feedPollTimer); S.feedPollTimer = null; }
   S.feedEtag  = '';
   S.feedItems = [];
-  _feedRenderedIds.clear();
 }
 
 const FEED_ICONS = {
