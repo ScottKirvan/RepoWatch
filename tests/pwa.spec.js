@@ -14,7 +14,7 @@ test.describe('PWA support', () => {
     expect(res.ok()).toBeTruthy();
     const manifest = await res.json();
 
-    expect(manifest.name).toBe('RepoWatch');
+    expect(manifest.name).toBe('Smokey');
     expect(manifest.display).toBe('standalone');
     expect(Array.isArray(manifest.icons)).toBe(true);
     expect(manifest.icons.length).toBeGreaterThan(0);

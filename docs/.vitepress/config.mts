@@ -1,16 +1,16 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: "RepoWatch",
+  title: "Smokey",
   description: "TODO - Replace with your project description.",
-  base: '/RepoWatch/',
+  base: '/Smokey/',
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'GitHub', link: 'https://github.com/ScottKirvan/RepoWatch' }
+      { text: 'GitHub', link: 'https://github.com/ScottKirvan/Smokey' }
     ],
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/ScottKirvan/RepoWatch' },
+      { icon: 'github', link: 'https://github.com/ScottKirvan/Smokey' },
       { icon: 'discord', link: 'https://discord.gg/TN6XJSNK5Y' }
     ],
     footer: {

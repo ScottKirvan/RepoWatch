@@ -1,6 +1,6 @@
-# Contributing to RepoWatch
+# Contributing to Smokey
 
-First off, thank you for considering contributing to RepoWatch! It's people like you that make this template better for everyone.
+First off, thank you for considering contributing to Smokey! It's people like you that make this template better for everyone.
 
 ## Code of Conduct
 
@@ -78,7 +78,7 @@ feat!: change template initialization workflow
 ## Project Structure
 
 ```
-RepoWatch/
+Smokey/
 ├── .github/
 │   ├── gitignore-templates/  # Example .gitignore files
 │   ├── ISSUE_TEMPLATE/       # Issue templates

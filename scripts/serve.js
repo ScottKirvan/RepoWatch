@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Zero-dependency static file server for local dev and the Playwright test suite.
-// RepoWatch ships with no build step, so tests serve the repo root as-is.
+// Smokey ships with no build step, so tests serve the repo root as-is.
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');

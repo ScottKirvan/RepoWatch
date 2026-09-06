@@ -1,10 +1,10 @@
-# CLAUDE.md — RepoWatch
+# CLAUDE.md — Smokey
 
 ## Project
 
-RepoWatch is a single-page GitHub repo health dashboard — installable as a PWA, no build step.
+Smokey is a single-page GitHub repo health dashboard — installable as a PWA, no build step.
 
-**GitHub repo:** `ScottKirvan/RepoWatch` (public)  
+**GitHub repo:** `ScottKirvan/Smokey` (public)  
 **Owner:** Scott Kirvan (anthropic@skvfx.com)  
 **Live app:** served directly from `index.html` on GitHub Pages
 
@@ -52,13 +52,13 @@ The PAT is stored **only** in `localStorage` and sent **only** to `api.github.co
 
 Theme-aware via CSS custom properties on `:root` (dark default) and `@media (prefers-color-scheme: light)`:
 
-| Token | Dark | Light | Purpose |
-|---|---|---|---|
+| Token      | Dark      | Light     | Purpose                  |
+| ---------- | --------- | --------- | ------------------------ |
 | `--accent` | `#2f81f7` | `#0969da` | Primary interactive blue |
-| `--ice` | `#58d4e8` | `#0891b2` | Blocked/waiting CI state |
-| `--good` | `#3fb950` | `#1a7f37` | Success / healthy |
-| `--warn` | `#d29922` | `#9a6700` | Warning / in-progress |
-| `--ext` | `#f85149` | `#cf222e` | Failure / stale |
+| `--ice`    | `#58d4e8` | `#0891b2` | Blocked/waiting CI state |
+| `--good`   | `#3fb950` | `#1a7f37` | Success / healthy        |
+| `--warn`   | `#d29922` | `#9a6700` | Warning / in-progress    |
+| `--ext`    | `#f85149` | `#cf222e` | Failure / stale          |
 
 ### Branching exception
 

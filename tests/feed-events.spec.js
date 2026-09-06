@@ -7,7 +7,7 @@ const { test, expect } = require('@playwright/test');
 function baseEvent(overrides) {
   return {
     id: '1',
-    repo: { name: 'ScottKirvan/RepoWatch' },
+    repo: { name: 'ScottKirvan/Smokey' },
     created_at: '2026-01-01T00:00:00Z',
     payload: {},
     ...overrides,
@@ -25,8 +25,8 @@ test.describe('mapEvent', () => {
       payload: { size: 3, commits: [1, 2, 3] },
     }));
     expect(item.verb).toBe('pushed 3 commits');
-    expect(item.repoName).toBe('RepoWatch');
-    expect(item.url).toBe('https://github.com/ScottKirvan/RepoWatch/commits');
+    expect(item.repoName).toBe('Smokey');
+    expect(item.url).toBe('https://github.com/ScottKirvan/Smokey/commits');
   });
 
   test('PushEvent uses singular "commit" for a single push', async ({ page }) => {
@@ -60,7 +60,7 @@ test.describe('mapEvent', () => {
       payload: { ref_type: 'branch', ref: 'feat/x' },
     }));
     expect(item.verb).toBe('created branch feat/x');
-    expect(item.url).toBe('https://github.com/ScottKirvan/RepoWatch/tree/feat%2Fx');
+    expect(item.url).toBe('https://github.com/ScottKirvan/Smokey/tree/feat%2Fx');
   });
 
   test('WatchEvent renders as "starred"', async ({ page }) => {
@@ -77,9 +77,9 @@ test.describe('activity feed marquee rendering', () => {
   const fakeItems = () => Array.from({ length: 3 }, (_, i) => ({
     id: String(i),
     icon: '<svg></svg>',
-    repoName: 'RepoWatch',
+    repoName: 'Smokey',
     verb: 'pushed 1 commit',
-    url: 'https://github.com/ScottKirvan/RepoWatch',
+    url: 'https://github.com/ScottKirvan/Smokey',
     createdAt: new Date().toISOString(),
   }));
 

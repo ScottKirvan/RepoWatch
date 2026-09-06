@@ -2,13 +2,13 @@
 layout: home
 
 hero:
-  name: "RepoWatch"
+  name: "Smokey"
   text: "TODO - Short project headline"
   tagline: TODO - Replace with your project tagline.
   actions:
     - theme: brand
       text: View on GitHub
-      link: https://github.com/ScottKirvan/RepoWatch
+      link: https://github.com/ScottKirvan/Smokey
     - theme: alt
       text: Discord
       link: https://discord.gg/TN6XJSNK5Y

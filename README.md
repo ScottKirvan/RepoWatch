@@ -1,30 +1,30 @@
-﻿# RepoWatch [![starline](https://raw.githubusercontent.com/ScottKirvan/RepoWatch/refs/heads/starlines/ScottKirvan/RepoWatch/starline.svg)](https://github.com/qoomon/starlines)
+﻿# Smokey [![starline](https://raw.githubusercontent.com/ScottKirvan/Smokey/refs/heads/starlines/ScottKirvan/Smokey/starline.svg)](https://github.com/qoomon/starlines)
 <div align="center">
 
   <img src="assets/media/logo.jpg" alt="logo" width="200" height="auto" />
-    <h1><a href="https://github.com/ScottKirvan/RepoWatch">ScottKirvan/RepoWatch</a></h1>
+    <h1><a href="https://github.com/ScottKirvan/Smokey">ScottKirvan/Smokey</a></h1>
   <h3>GitHub repo health at a glance — no login required for public repos</h3>
   
   
 <!-- Badges -->
 <p>
-  <a href="https://github.com/ScottKirvan/RepoWatch/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/ScottKirvan/RepoWatch" alt="contributors" />
+  <a href="https://github.com/ScottKirvan/Smokey/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/ScottKirvan/Smokey" alt="contributors" />
   </a>
   <a href="">
-    <img src="https://img.shields.io/github/last-commit/ScottKirvan/RepoWatch" alt="last update" />
+    <img src="https://img.shields.io/github/last-commit/ScottKirvan/Smokey" alt="last update" />
   </a>
-  <a href="https://github.com/ScottKirvan/RepoWatch/network/members">
-    <img src="https://img.shields.io/github/forks/ScottKirvan/RepoWatch" alt="forks" />
+  <a href="https://github.com/ScottKirvan/Smokey/network/members">
+    <img src="https://img.shields.io/github/forks/ScottKirvan/Smokey" alt="forks" />
   </a>
-  <a href="https://github.com/ScottKirvan/RepoWatch/stargazers">
-    <img src="https://img.shields.io/github/stars/ScottKirvan/RepoWatch" alt="stars" />
+  <a href="https://github.com/ScottKirvan/Smokey/stargazers">
+    <img src="https://img.shields.io/github/stars/ScottKirvan/Smokey" alt="stars" />
   </a>
-  <a href="https://github.com/ScottKirvan/RepoWatch/issues/">
-    <img src="https://img.shields.io/github/issues/ScottKirvan/RepoWatch" alt="open issues" />
+  <a href="https://github.com/ScottKirvan/Smokey/issues/">
+    <img src="https://img.shields.io/github/issues/ScottKirvan/Smokey" alt="open issues" />
   </a>
-  <a href="https://github.com/ScottKirvan/RepoWatch/blob/main/LICENSE.md">
-    <img src="https://img.shields.io/github/license/ScottKirvan/RepoWatch.svg" alt="license" />
+  <a href="https://github.com/ScottKirvan/Smokey/blob/main/LICENSE.md">
+    <img src="https://img.shields.io/github/license/ScottKirvan/Smokey.svg" alt="license" />
   </a>
   <a href="https://discord.gg/TN6XJSNK5Y">
     <!--<img src="https://img.shields.io/discord/704680098577514527?style=flat-square&label=%F0%9F%92%AC%20discord&color=00ACD7">-->
@@ -35,15 +35,15 @@
 <h4>
     <a href="https://tinyurl.com/3vf7whyd">View Demo</a>
   <span> · </span>
-    <a href="https://github.com/ScottKirvan/RepoWatch/blob/main/README.md">Documentation</a>
+    <a href="https://github.com/ScottKirvan/Smokey/blob/main/README.md">Documentation</a>
   <span> · </span>
-    <a href="https://github.com/ScottKirvan/RepoWatch/issues/new?template=bug_report.md">Report Bug</a>
+    <a href="https://github.com/ScottKirvan/Smokey/issues/new?template=bug_report.md">Report Bug</a>
   <span> · </span>
-    <a href="https://github.com/ScottKirvan/RepoWatch/issues/new?template=feature_request.md">Request Feature</a>
+    <a href="https://github.com/ScottKirvan/Smokey/issues/new?template=feature_request.md">Request Feature</a>
   </h4>
 </div>
 
-**RepoWatch** is a single-page developer dashboard for monitoring GitHub repositories. Open `index.html` in any browser, see every repo's last commit, latest release, open PRs, and open issues in one sortable table. External contributor activity is called out with attention badges so you know what needs a response without clicking around GitHub.
+**Smokey** is a single-page developer dashboard for monitoring GitHub repositories. Open `index.html` in any browser, see every repo's last commit, latest release, open PRs, and open issues in one sortable table. External contributor activity is called out with attention badges so you know what needs a response without clicking around GitHub.
 
 ## Features
 
@@ -57,10 +57,10 @@
 
 ## Installation
 
-RepoWatch is a static HTML file — no build step, no dependencies, no server.
+Smokey is a static HTML file — no build step, no dependencies, no server.
 
 **Hosted (GitHub Pages):**  
-Visit [scottkirvan.github.io/RepoWatch](https://scottkirvan.github.io/RepoWatch/) — no install needed.
+Visit [scottkirvan.github.io/Smokey](https://scottkirvan.github.io/Smokey/) — no install needed.
 
 **Self-hosted:**  
 1. Download `index.html`
@@ -114,14 +114,14 @@ Release Please PRs are authored by `github-actions[bot]`, which the dashboard fi
 
 Contributions / Contact
 -----------------------
-- Please [file an issue](https://github.com/ScottKirvan/RepoWatch/issues/new), or [grab a fork](https://github.com/ScottKirvan/RepoWatch/fork), hack away, and submit a [pull request](https://github.com/ScottKirvan/RepoWatch/pulls).
+- Please [file an issue](https://github.com/ScottKirvan/Smokey/issues/new), or [grab a fork](https://github.com/ScottKirvan/Smokey/fork), hack away, and submit a [pull request](https://github.com/ScottKirvan/Smokey/pulls).
 - Contact me at [linkedin.com/in/scottkirvan/](https://www.linkedin.com/in/scottkirvan/)
 - You can also contact me at my [discord](https://discord.gg/TN6XJSNK5Y) server, I'm cptvideo.
 
 Credits
 -------
-**[RepoWatch](https://github.com/ScottKirvan/RepoWatch)** — Copyright (c) 2025 [Scott Kirvan](https://github.com/ScottKirvan). [MIT License](LICENSE.md).
+**[Smokey](https://github.com/ScottKirvan/Smokey)** — Copyright (c) 2025 [Scott Kirvan](https://github.com/ScottKirvan). [MIT License](LICENSE.md).
 
-Project Link:  [RepoWatch](https://github.com/ScottKirvan/RepoWatch)  
+Project Link:  [Smokey](https://github.com/ScottKirvan/Smokey)  
 [CHANGELOG](notes/CHANGELOG.md)  
 [TODO](notes/TODO.md)
