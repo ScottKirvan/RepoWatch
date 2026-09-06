@@ -1027,11 +1027,11 @@ document.getElementById('feedRow').addEventListener('mouseleave', () => {
   const el = document.querySelector('.feed-inner');
   if (el) el.style.animationPlayState = 'running';
 }, true);
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
-    const el = document.querySelector('.feed-inner');
-    if (el) el.style.animationPlayState = 'running';
-  }
+// visibilitychange doesn't fire when target="_blank" opens a new tab (original tab stays
+// "visible"); window focus/blur does, so use that to unstick the paused state.
+window.addEventListener('focus', () => {
+  const el = document.querySelector('.feed-inner');
+  if (el) el.style.animationPlayState = 'running';
 });
 
 init();
