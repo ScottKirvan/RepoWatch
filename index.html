@@ -194,6 +194,19 @@ tbody td:first-child { padding-left: 13px; }
 .cnt-link:hover { color: var(--accent); }
 .cnt-link.zero { color: var(--text-dim); font-weight: 400; }
 
+/* CI status dot */
+.ci-dot {
+  display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--border); vertical-align: middle; text-decoration: none;
+  cursor: default; flex-shrink: 0;
+}
+a.ci-dot { cursor: pointer; transition: opacity 0.1s; }
+a.ci-dot:hover { opacity: 0.7; }
+a.ci-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ci-green  { background: var(--good); box-shadow: 0 0 5px var(--good); }
+.ci-yellow { background: var(--warn); }
+.ci-red    { background: var(--ext);  box-shadow: 0 0 5px var(--ext); }
+
 /* Skeleton */
 @keyframes shimmer {
   0% { background-position: 200% 0; }
@@ -329,6 +342,7 @@ tbody td:first-child { padding-left: 13px; }
         <th id="th-commit"  onclick="setSort('commit')" ><div class="th-inner">Last Push <span class="sort-arrow" id="arr-commit">↑</span></div></th>
         <th id="th-prs"     onclick="setSort('prs')"    ><div class="th-inner">PRs     <span class="sort-arrow" id="arr-prs"></span></div></th>
         <th id="th-issues"  onclick="setSort('issues')" ><div class="th-inner">Issues  <span class="sort-arrow" id="arr-issues"></span></div></th>
+        <th id="th-ci"      onclick="setSort('ci')"     ><div class="th-inner">CI      <span class="sort-arrow" id="arr-ci"></span></div></th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -344,7 +358,7 @@ tbody td:first-child { padding-left: 13px; }
     <div class="field">
       <div class="field-label">GitHub PAT <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
       <input type="password" class="field-input" id="patInput" placeholder="ghp_… (needed for traffic data + private repos)" autocomplete="off">
-      <div class="field-hint">Public repo data loads without a token. A PAT with <code>repo</code> scope unlocks the traffic chart and private repos. Stored in localStorage, sent only to api.github.com.</div>
+      <div class="field-hint">Public repo data loads without a token. A PAT with <code>repo</code> scope unlocks the traffic chart, CI status, and private repos. Stored in localStorage, sent only to api.github.com.</div>
     </div>
     <div class="field">
       <div class="field-label">Repositories</div>
@@ -410,13 +424,20 @@ async function load() {
   S.data = results;
   S.loadedAt = new Date();
 
-  // Fetch traffic only when PAT is present
+  // Fetch PAT-gated data: traffic + CI status (parallel)
   if (S.pat) {
     try {
-      const trafficArr = await Promise.all(S.repos.map(r => fetchTraffic(r, headers)));
+      const [trafficArr, ciArr] = await Promise.all([
+        Promise.all(S.repos.map(r => fetchTraffic(r, headers))),
+        Promise.all(S.repos.map(r => fetchWorkflowRuns(r, headers))),
+      ]);
       renderChart(aggregateTraffic(trafficArr));
+      S.repos.forEach((name, i) => {
+        const d = S.data.find(r => r.full_name === name);
+        if (d) d.ci = ciArr[i];
+      });
     } catch(e) {
-      console.error('Traffic fetch failed:', e);
+      console.error('PAT-gated fetch failed:', e);
     }
   }
 
@@ -459,6 +480,59 @@ async function fetchTraffic(fullName, headers) {
     const r = await fetch(`https://api.github.com/repos/${fullName}/traffic/views`, { headers });
     return r.ok ? await r.json() : null;
   } catch(e) { return null; }
+}
+
+const CI_RED    = new Set(['failure','timed_out','startup_failure','action_required']);
+const CI_YELLOW = new Set(['cancelled','in_progress','queued','waiting']);
+
+async function fetchWorkflowRuns(fullName, headers) {
+  try {
+    const r = await fetch(
+      `https://api.github.com/repos/${fullName}/actions/runs?per_page=10`,
+      { headers }
+    );
+    if (!r.ok) return null;
+    const { workflow_runs } = await r.json();
+    if (!workflow_runs?.length) return { level: 'none', workflows: [] };
+
+    // Dedupe: take the latest run per workflow name (API returns newest-first)
+    const seen = new Set(), latest = [];
+    for (const run of workflow_runs) {
+      if (!seen.has(run.name)) { seen.add(run.name); latest.push(run); }
+    }
+
+    for (const run of latest) {
+      if (CI_RED.has(run.conclusion || run.status)) return { level: 'red', workflows: latest };
+    }
+    for (const run of latest) {
+      if (CI_YELLOW.has(run.conclusion || run.status)) return { level: 'yellow', workflows: latest };
+    }
+    return { level: 'green', workflows: latest };
+  } catch(e) { return null; }
+}
+
+function ciTooltip(ci) {
+  if (!ci || ci.level === 'none') return 'No workflow runs found';
+  return ci.workflows.map(run => {
+    const c = run.conclusion || run.status;
+    const icon = CI_RED.has(c) ? '✗' : CI_YELLOW.has(c) ? '○' : '✓';
+    const detail = (CI_RED.has(c) || CI_YELLOW.has(c)) ? ` (${c})` : '';
+    return `${icon} ${run.name}${detail}`;
+  }).join('\n');
+}
+
+function ciCellHTML(d) {
+  if (!S.pat) {
+    return `<td><span class="ci-dot" title="Add a PAT in Settings to see CI status"></span></td>`;
+  }
+  if (!d.ci) {
+    return `<td><span class="ci-dot" title="CI status unavailable"></span></td>`;
+  }
+  if (d.ci.level === 'none') {
+    return `<td><span class="ci-dot" title="No workflow runs found"></span></td>`;
+  }
+  return `<td><a class="ci-dot ci-${d.ci.level}" href="https://github.com/${d.full_name}/actions"
+    target="_blank" rel="noopener" title="${esc(ciTooltip(d.ci))}"></a></td>`;
 }
 
 function aggregateTraffic(arr) {
@@ -575,7 +649,7 @@ function rowHTML(d) {
     const msg = d.error===404 ? 'not found or no access'
               : d.error===401 ? 'unauthorized — check PAT' : `error ${d.error}`;
     return `<tr><td><span class="repo-link">${esc(repoLabel(d.full_name))}</span></td>
-      <td colspan="3" style="font-size:11px;color:var(--text-dim);font-style:italic">${msg}</td></tr>`;
+      <td colspan="4" style="font-size:11px;color:var(--text-dim);font-style:italic">${msg}</td></tr>`;
   }
 
   const hasExt = d.external_prs > 0 || d.external_issues > 0;
@@ -591,6 +665,7 @@ function rowHTML(d) {
     <td><span class="time-val ${timeClass(d.pushed_at)}">${relTimeStr(d.pushed_at)}</span></td>
     <td><a class="cnt-link ${d.open_prs===0?'zero':''}" href="https://github.com/${d.full_name}/pulls" target="_blank" rel="noopener">${d.open_prs}</a></td>
     <td><a class="cnt-link ${d.open_issues===0?'zero':''}" href="https://github.com/${d.full_name}/issues" target="_blank" rel="noopener">${d.open_issues}</a></td>
+    ${ciCellHTML(d)}
   </tr>`;
 }
 
@@ -600,13 +675,15 @@ function repoLabel(fullName) {
 }
 
 // ── Sort ──────────────────────────────────────────────
+const CI_LEVEL = { red: 0, yellow: 1, green: 2, none: 3 };
 const SORT_KEYS = {
   name:   d => (d.full_name || '').toLowerCase(),
   commit: d => new Date(d.pushed_at || 0).getTime(),
   prs:    d => d.open_prs    || 0,
   issues: d => d.open_issues || 0,
+  ci:     d => d.ci ? (CI_LEVEL[d.ci.level] ?? 99) : 99,
 };
-const COLS = ['name','commit','prs','issues'];
+const COLS = ['name','commit','prs','issues','ci'];
 
 function sortData(data) {
   const key = SORT_KEYS[S.sortBy] || SORT_KEYS.commit;
@@ -622,8 +699,8 @@ function setSort(field) {
     S.sortDir = S.sortDir === 'asc' ? 'desc' : 'asc';
   } else {
     S.sortBy  = field;
-    // Default direction per column
-    S.sortDir = field === 'commit' ? 'asc' : 'desc';
+    // Default direction: commit/ci ascending (oldest/worst first); others descending
+    S.sortDir = (field === 'commit' || field === 'ci') ? 'asc' : 'desc';
   }
   updateSortHeaders();
   renderTable(S.data);
@@ -661,7 +738,8 @@ function renderSkeleton(n) {
     `<tr><td><div class="skel" style="width:90px;margin-bottom:4px"></div><div class="skel" style="width:55px"></div></td>
     <td><div class="skel" style="width:44px"></div></td>
     <td><div class="skel" style="width:16px"></div></td>
-    <td><div class="skel" style="width:16px"></div></td></tr>`).join('');
+    <td><div class="skel" style="width:16px"></div></td>
+    <td><div class="skel" style="width:9px;height:9px;border-radius:50%"></div></td></tr>`).join('');
 }
 
 // ── Config ────────────────────────────────────────────
