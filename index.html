@@ -519,7 +519,7 @@ async function fetchRepo(fullName, headers) {
     const extPRs  = prs.filter(p => p.user?.login !== me && !isBot(p.user));
     const extI    = issues.filter(i => i.user?.login !== me && !isBot(i.user));
     return {
-      full_name: fullName, pushed_at: repo.pushed_at,
+      full_name: repo.full_name, pushed_at: repo.pushed_at,
       latest_release: release?.tag_name ? release : null,
       open_prs: prs.length, external_prs: extPRs.length,
       open_issues: issues.length, external_issues: extI.length,
@@ -957,8 +957,13 @@ async function pollEvents() {
     S.feedEtag = r.headers.get('ETag') || S.feedEtag;
     const events = await r.json();
 
-    // Filter to repos we monitor (exact match e.g. "ScottKirvan/BojuBot")
-    const filtered = events.filter(ev => S.repos.includes(ev.repo?.name));
+    // Filter to repos we monitor. Match against the canonical full_name
+    // fetchRepo() resolved (S.data), not the raw S.repos config strings —
+    // GitHub's Events API reports each event's current repo name and never
+    // redirects a renamed repo's old name, so a stale Settings entry would
+    // otherwise silently drop that repo's events.
+    const monitored = new Set(S.data.filter(d => !d.error).map(d => d.full_name));
+    const filtered = events.filter(ev => monitored.has(ev.repo?.name));
 
     // Dedup PushEvents: events are newest-first; if a repo already has a push within 5 min, skip duplicates
     const seenPushRepo = {};
