@@ -11,8 +11,22 @@ function fakeResponse(headers) {
   return { headers: { get: (k) => (map.has(k) ? map.get(k) : null) } };
 }
 
+// index.html's own init() fires real, unauthenticated fetchRepo() calls
+// against api.github.com for the default repo list the instant the page
+// loads — regardless of whether a PAT is set. Those real responses carry
+// real X-RateLimit-* headers and race against this file's own captures,
+// so every test here blocks that traffic before navigating: otherwise a
+// real response landing after a test's fake one silently overwrites
+// S.rateLimit/#rateLimitBar with live data (this is exactly what made the
+// suite flake in CI: real unauthenticated data of "60/60" clobbered a
+// test's fake "187/5,000").
+async function blockGitHubApi(page) {
+  await page.route('https://api.github.com/**', (route) => route.abort());
+}
+
 test.describe('captureRateLimit', () => {
   test.beforeEach(async ({ page }) => {
+    await blockGitHubApi(page);
     await page.goto('/index.html');
   });
 
@@ -53,6 +67,7 @@ test.describe('captureRateLimit', () => {
 
 test.describe('renderRateLimit', () => {
   test.beforeEach(async ({ page }) => {
+    await blockGitHubApi(page);
     await page.goto('/index.html');
   });
 
@@ -76,6 +91,7 @@ test.describe('renderRateLimit', () => {
 
 test.describe('fetchRepo captures rate limit from its own request', () => {
   test.beforeEach(async ({ page }) => {
+    await blockGitHubApi(page);
     await page.goto('/index.html');
   });
 
